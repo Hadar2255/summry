@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Assistant', 'Heebo', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #e2e8f0;
+}
+
+input[type="date"], input[type="time"] {
+  font-family: inherit;
+}
+
+/* Hide native scrollbar for cleaner phone-like feel */
+.phone-scroll::-webkit-scrollbar { width: 0; }
+.phone-scroll { scrollbar-width: none; }
