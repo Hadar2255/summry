@@ -4,7 +4,8 @@ import {
   Settings as SettingsIcon, CheckCircle2, Calendar as CalendarIcon,
   CalendarDays, Mail, Shield, Lock, Database, Activity, Zap,
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
-  Signal, Wifi, BatteryFull, CheckSquare, Square, LogOut, Globe
+  Signal, Wifi, BatteryFull, CheckSquare, Square, LogOut, Globe,
+  MessageSquare, Volume2, UserPlus, Edit3, X, Users
 } from 'lucide-react';
 
 /* ============================================================
@@ -38,6 +39,37 @@ const INITIAL_PROPOSED = {
 };
 
 const ASSIGNEES = ['דנה כהן', 'יוסי לוי', 'נועה שמש', 'רינה אבני', 'אורי ברק'];
+
+/* Speaker diarization — palette + seed data */
+const SPEAKER_COLORS = {
+  indigo:  { bg: 'bg-indigo-100',  text: 'text-indigo-800',  ring: 'ring-indigo-300',  solid: 'bg-indigo-500',  dot: 'bg-indigo-500'  },
+  emerald: { bg: 'bg-emerald-100', text: 'text-emerald-800', ring: 'ring-emerald-300', solid: 'bg-emerald-500', dot: 'bg-emerald-500' },
+  amber:   { bg: 'bg-amber-100',   text: 'text-amber-900',   ring: 'ring-amber-300',   solid: 'bg-amber-500',   dot: 'bg-amber-500'   },
+  rose:    { bg: 'bg-rose-100',    text: 'text-rose-800',    ring: 'ring-rose-300',    solid: 'bg-rose-500',    dot: 'bg-rose-500'    },
+  sky:     { bg: 'bg-sky-100',     text: 'text-sky-800',     ring: 'ring-sky-300',     solid: 'bg-sky-500',     dot: 'bg-sky-500'     },
+  slate:   { bg: 'bg-slate-200',   text: 'text-slate-700',   ring: 'ring-slate-300',   solid: 'bg-slate-500',   dot: 'bg-slate-500'   }
+};
+
+const COLOR_KEYS = ['indigo', 'emerald', 'amber', 'rose', 'sky'];
+
+const INITIAL_SPEAKERS = [
+  { id: 's1', name: 'דנה כהן',         color: 'indigo',  trained: true  },
+  { id: 's2', name: 'יוסי לוי',        color: 'emerald', trained: true  },
+  { id: 's3', name: 'נועה שמש',        color: 'amber',   trained: true  },
+  { id: 's4', name: 'דובר לא מזוהה',   color: 'slate',   trained: false }
+];
+
+const INITIAL_TRANSCRIPT = [
+  { id: 1, speakerId: 's1', time: '00:14', text: 'בואו נתחיל בסקירת הביצועים של הרבעון השני. ה-NPS עלה ל-62 — שיפור של 8 נקודות מהרבעון הקודם.' },
+  { id: 2, speakerId: 's2', time: '00:42', text: 'מצוין. בהקשר הזה, אני חושב שאנחנו צריכים להגדיל את התקציב של פרויקט אטלס לפחות ב-15%.' },
+  { id: 3, speakerId: 's3', time: '01:08', text: 'אני מסכימה. אבל לפני שמאשרים, צריך לוודא שיש לנו עמידה רגולטורית מלאה בשווקים החדשים.' },
+  { id: 4, speakerId: 's1', time: '01:35', text: 'נכון, זה קריטי. נועה, תוכלי לסכם את הדרישות החוקיות עד סוף השבוע?' },
+  { id: 5, speakerId: 's3', time: '01:48', text: 'בהחלט, אטפל בזה. אני אצור קשר גם עם הצוות המשפטי בלונדון.' },
+  { id: 6, speakerId: 's4', time: '02:12', text: 'אני רוצה להעלות נקודה לגבי גיוס שני אנשי פיתוח נוספים — מתי נוכל לפרסם משרות?' },
+  { id: 7, speakerId: 's2', time: '02:30', text: 'יוסי, תוכל לתאם איתי פגישת Kick-Off עם צוות הפיתוח השבוע הבא?' },
+  { id: 8, speakerId: 's1', time: '02:55', text: 'מסכמים: אטלס מאושר עם תקציב מוגדל, דנה מכינה מצגת מעודכנת, נועה מטפלת ברגולציה, ויוסי בתיאום הצוות. נפגשים שוב בשבוע הבא.' }
+];
+
 
 /* ============================================================ */
 /*                         PHONE FRAME                          */
@@ -94,6 +126,8 @@ export default function App() {
   const [tasks, setTasks]                       = useState(INITIAL_TASKS);
   const [proposedMeeting, setProposedMeeting]   = useState(INITIAL_PROPOSED);
   const [integrations, setIntegrations]         = useState({ calendar: true, gmail: false });
+  const [speakers, setSpeakers]                 = useState(INITIAL_SPEAKERS);
+  const [transcript, setTranscript]             = useState(INITIAL_TRANSCRIPT);
   const [toast, setToast]                       = useState(null);
 
   useEffect(() => {
@@ -131,6 +165,7 @@ export default function App() {
               formatTime={formatTime}
               openMeeting={openMeeting}
               showToast={showToast}
+              speakers={speakers}
             />
           )}
           {activeTab === 'analysis' && (
@@ -142,6 +177,10 @@ export default function App() {
               setTasks={setTasks}
               proposedMeeting={proposedMeeting}
               setProposedMeeting={setProposedMeeting}
+              transcript={transcript}
+              speakers={speakers}
+              setSpeakers={setSpeakers}
+              goToSettings={() => setActiveTab('settings')}
               showToast={showToast}
             />
           )}
@@ -149,6 +188,8 @@ export default function App() {
             <SettingsScreen
               integrations={integrations}
               setIntegrations={setIntegrations}
+              speakers={speakers}
+              setSpeakers={setSpeakers}
               showToast={showToast}
             />
           )}
@@ -178,7 +219,22 @@ export default function App() {
 /*                  SCREEN 1 — DASHBOARD                        */
 /* ============================================================ */
 
-function DashboardScreen({ meetings, isRecording, setIsRecording, recordingTime, formatTime, openMeeting, showToast }) {
+function DashboardScreen({ meetings, isRecording, setIsRecording, recordingTime, formatTime, openMeeting, showToast, speakers }) {
+  const trainedSpeakers = useMemo(() => speakers.filter(s => s.trained), [speakers]);
+  const [currentSpeakerIdx, setCurrentSpeakerIdx] = useState(0);
+
+  useEffect(() => {
+    if (!isRecording || trainedSpeakers.length === 0) return;
+    const id = setInterval(() => {
+      setCurrentSpeakerIdx(i => (i + 1) % trainedSpeakers.length);
+    }, 2500);
+    return () => clearInterval(id);
+  }, [isRecording, trainedSpeakers.length]);
+
+  const currentSpeaker = isRecording && trainedSpeakers.length > 0
+    ? trainedSpeakers[currentSpeakerIdx % trainedSpeakers.length]
+    : null;
+
   return (
     <div className="px-5 pt-1">
       <header className="flex items-center justify-between py-3 mb-3">
@@ -256,6 +312,26 @@ function DashboardScreen({ meetings, isRecording, setIsRecording, recordingTime,
           {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           <span className="text-[15px]">{isRecording ? 'עצור הקלטה' : 'התחל הקלטת פגישה'}</span>
         </button>
+
+        {/* Live speaker indicator */}
+        {currentSpeaker && (
+          <div className="relative mt-3 bg-white/70 backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-2 border border-rose-200">
+            <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 animate-ping" />
+              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${SPEAKER_COLORS[currentSpeaker.color].solid}`} />
+            </span>
+            <Volume2 className="w-3.5 h-3.5 text-rose-700 flex-shrink-0" />
+            <span className="text-[11px] font-bold text-rose-900">מדבר עכשיו:</span>
+            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${SPEAKER_COLORS[currentSpeaker.color].bg}`}>
+              <span className={`w-4 h-4 rounded-full ${SPEAKER_COLORS[currentSpeaker.color].solid} text-white text-[8px] font-bold flex items-center justify-center`}>
+                {currentSpeaker.name.charAt(0)}
+              </span>
+              <span className={`text-[11px] font-bold ${SPEAKER_COLORS[currentSpeaker.color].text}`}>
+                {currentSpeaker.name}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Upload secondary */}
@@ -326,7 +402,7 @@ function Stat({ label, value, tone }) {
 /*               SCREEN 2 — MEETING ANALYSIS                    */
 /* ============================================================ */
 
-function AnalysisScreen({ meeting, summary, setSummary, tasks, setTasks, proposedMeeting, setProposedMeeting, showToast }) {
+function AnalysisScreen({ meeting, summary, setSummary, tasks, setTasks, proposedMeeting, setProposedMeeting, transcript, speakers, setSpeakers, goToSettings, showToast }) {
   const [localSummary, setLocalSummary] = useState(summary);
   useEffect(() => setLocalSummary(summary), [summary, meeting?.id]);
 
@@ -386,6 +462,15 @@ function AnalysisScreen({ meeting, summary, setSummary, tasks, setTasks, propose
           </div>
         </div>
       </Section>
+
+      {/* Transcript by speaker */}
+      <TranscriptSection
+        transcript={transcript}
+        speakers={speakers}
+        setSpeakers={setSpeakers}
+        goToSettings={goToSettings}
+        showToast={showToast}
+      />
 
       {/* Action items */}
       <Section icon={<ListChecks className="w-4 h-4 text-[#0F2042]" />} title="משימות לביצוע" aside={`${openCount} פתוחות`}>
@@ -540,7 +625,7 @@ function Field({ label, children }) {
 /*               SCREEN 3 — SETTINGS & SECURITY                 */
 /* ============================================================ */
 
-function SettingsScreen({ integrations, setIntegrations, showToast }) {
+function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, showToast }) {
   const toggle = (key, name) => {
     const next = !integrations[key];
     setIntegrations({ ...integrations, [key]: next });
@@ -587,6 +672,15 @@ function SettingsScreen({ integrations, setIntegrations, showToast }) {
             onToggle={() => toggle('gmail', 'Gmail')}
           />
         </div>
+      </SettingsGroup>
+
+      {/* Voice profiles */}
+      <SettingsGroup title="פרופילי קול">
+        <VoiceProfileSection
+          speakers={speakers}
+          setSpeakers={setSpeakers}
+          showToast={showToast}
+        />
       </SettingsGroup>
 
       {/* Enterprise security */}
@@ -690,6 +784,394 @@ function SecurityRow({ icon, title, desc }) {
         <p className="text-[10px] text-emerald-700/80 truncate">{desc}</p>
       </div>
       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+    </div>
+  );
+}
+
+/* ============================================================ */
+/*               SPEAKER DIARIZATION COMPONENTS                 */
+/* ============================================================ */
+
+function TranscriptSection({ transcript, speakers, setSpeakers, goToSettings, showToast }) {
+  const [activeFilterId, setActiveFilterId] = useState(null);
+  const [editingId, setEditingId]           = useState(null);
+  const [draftName, setDraftName]           = useState('');
+
+  const speakersById = useMemo(() => {
+    const map = {};
+    speakers.forEach(s => { map[s.id] = s; });
+    return map;
+  }, [speakers]);
+
+  const visible = useMemo(() => {
+    if (!activeFilterId) return transcript;
+    return transcript.filter(u => u.speakerId === activeFilterId);
+  }, [transcript, activeFilterId]);
+
+  const startEdit = (speaker) => {
+    setEditingId(speaker.id);
+    setDraftName(speaker.name);
+  };
+
+  const commitEdit = () => {
+    const trimmed = draftName.trim();
+    if (!trimmed) { setEditingId(null); return; }
+    setSpeakers(prev => prev.map(s => s.id === editingId ? { ...s, name: trimmed } : s));
+    setEditingId(null);
+    showToast('שם הדובר עודכן בכל הציטוטים');
+  };
+
+  const promoteToProfile = (speaker) => {
+    setSpeakers(prev => prev.map(s => s.id === speaker.id ? { ...s, trained: true, color: 'sky' } : s));
+    showToast('פרופיל קול נוצר — מעבר להגדרות');
+    setTimeout(() => goToSettings && goToSettings(), 600);
+  };
+
+  return (
+    <Section
+      icon={<MessageSquare className="w-4 h-4 text-[#0F2042]" />}
+      title="תמלול לפי דובר"
+      aside={`${transcript.length} ציטוטים`}
+    >
+      <SpeakerFilterChips
+        speakers={speakers}
+        activeFilterId={activeFilterId}
+        setActiveFilterId={setActiveFilterId}
+        transcript={transcript}
+      />
+
+      <div className="space-y-2 mt-2">
+        {visible.map(u => {
+          const speaker = speakersById[u.speakerId];
+          if (!speaker) return null;
+          const isEditing = editingId === speaker.id;
+          return (
+            <SpeakerBubble
+              key={u.id}
+              utterance={u}
+              speaker={speaker}
+              isEditing={isEditing}
+              draftName={draftName}
+              setDraftName={setDraftName}
+              onStartEdit={() => startEdit(speaker)}
+              onCommitEdit={commitEdit}
+              onCancelEdit={() => setEditingId(null)}
+              onPromoteToProfile={() => promoteToProfile(speaker)}
+            />
+          );
+        })}
+        {visible.length === 0 && (
+          <div className="text-center py-6 text-xs text-slate-400">
+            אין ציטוטים לדובר זה
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+function SpeakerFilterChips({ speakers, activeFilterId, setActiveFilterId, transcript }) {
+  const counts = useMemo(() => {
+    const c = {};
+    transcript.forEach(u => { c[u.speakerId] = (c[u.speakerId] || 0) + 1; });
+    return c;
+  }, [transcript]);
+
+  const present = speakers.filter(s => counts[s.id] > 0);
+
+  return (
+    <div className="flex items-center gap-1.5 overflow-x-auto phone-scroll pb-1 -mx-0.5 px-0.5">
+      <button
+        onClick={() => setActiveFilterId(null)}
+        className={`flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold transition-colors ${
+          activeFilterId === null
+            ? 'bg-[#0F2042] text-white'
+            : 'bg-white border border-slate-200 text-slate-600'
+        }`}
+      >
+        <Users className="w-3 h-3" />
+        הכל
+      </button>
+      {present.map(s => {
+        const colors = SPEAKER_COLORS[s.color];
+        const active = activeFilterId === s.id;
+        return (
+          <button
+            key={s.id}
+            onClick={() => setActiveFilterId(active ? null : s.id)}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all ${
+              active
+                ? `${colors.bg} ${colors.text} ring-2 ${colors.ring}`
+                : 'bg-white border border-slate-200 text-slate-600'
+            }`}
+          >
+            <span className={`w-2 h-2 rounded-full ${colors.dot}`} />
+            {s.name}
+            <span className="text-slate-400 font-medium">{counts[s.id]}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function SpeakerBubble({ utterance, speaker, isEditing, draftName, setDraftName, onStartEdit, onCommitEdit, onCancelEdit, onPromoteToProfile }) {
+  const colors = SPEAKER_COLORS[speaker.color];
+  const initial = speaker.name.charAt(0);
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-3">
+      <div className="flex items-start gap-2.5">
+        <div className={`w-9 h-9 rounded-full ${colors.solid} text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0 ring-2 ${colors.ring}`}>
+          {initial}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap mb-1">
+            {isEditing ? (
+              <div className="flex items-center gap-1 flex-1 min-w-0">
+                <input
+                  autoFocus
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') onCommitEdit();
+                    if (e.key === 'Escape') onCancelEdit();
+                  }}
+                  className={`flex-1 min-w-0 text-[13px] font-bold ${colors.text} bg-slate-50 rounded-md px-2 py-0.5 focus:outline-none focus:ring-2 ${colors.ring}`}
+                />
+                <button onClick={onCommitEdit} className="text-emerald-600 p-1" aria-label="שמור">
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+                <button onClick={onCancelEdit} className="text-slate-400 p-1" aria-label="בטל">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={onStartEdit}
+                className={`flex items-center gap-1 text-[13px] font-extrabold ${colors.text} hover:underline decoration-dotted`}
+              >
+                {speaker.name}
+                <Edit3 className="w-3 h-3 opacity-50" />
+              </button>
+            )}
+            <span className="text-[10px] text-slate-400 font-medium tabular-nums">{utterance.time}</span>
+            {speaker.trained ? (
+              <span className={`text-[9px] font-bold ${colors.text} ${colors.bg} px-1.5 py-0.5 rounded-full flex items-center gap-0.5`}>
+                <Volume2 className="w-2.5 h-2.5" />
+                מזוהה
+              </span>
+            ) : (
+              <button
+                onClick={onPromoteToProfile}
+                className="text-[9px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full flex items-center gap-0.5 hover:bg-amber-200 transition-colors"
+              >
+                <UserPlus className="w-2.5 h-2.5" />
+                צור פרופיל קול
+              </button>
+            )}
+          </div>
+          <p className="text-[13px] text-slate-700 leading-relaxed">{utterance.text}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VoiceProfileSection({ speakers, setSpeakers, showToast }) {
+  const [trainingSpeaker, setTrainingSpeaker] = useState(null);
+
+  const startTraining = (speaker) => setTrainingSpeaker(speaker);
+
+  const completeTraining = () => {
+    if (!trainingSpeaker) return;
+    setSpeakers(prev => prev.map(s =>
+      s.id === trainingSpeaker.id
+        ? { ...s, trained: true, color: s.color === 'slate' ? 'sky' : s.color }
+        : s
+    ));
+    setTrainingSpeaker(null);
+    showToast('פרופיל קול נשמר • הזיהוי פעיל לפגישות עתידיות');
+  };
+
+  const deleteSpeaker = (id) => {
+    setSpeakers(prev => prev.filter(s => s.id !== id));
+    showToast('הפרופיל הוסר');
+  };
+
+  const addProfile = () => {
+    const usedColors = new Set(speakers.map(s => s.color));
+    const nextColor = COLOR_KEYS.find(c => !usedColors.has(c)) || 'sky';
+    const newId = `s${Date.now()}`;
+    setSpeakers(prev => [...prev, { id: newId, name: 'משתתף חדש', color: nextColor, trained: false }]);
+    showToast('פרופיל חדש נוסף — לחץ "אמן" להפעלה');
+  };
+
+  const updateName = (id, name) => {
+    setSpeakers(prev => prev.map(s => s.id === id ? { ...s, name } : s));
+  };
+
+  return (
+    <>
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        {speakers.map((s, idx) => (
+          <React.Fragment key={s.id}>
+            {idx > 0 && <div className="h-px bg-slate-100 mr-[68px]" />}
+            <VoiceProfileRow
+              speaker={s}
+              onTrain={() => startTraining(s)}
+              onDelete={() => deleteSpeaker(s.id)}
+              onRename={(name) => updateName(s.id, name)}
+            />
+          </React.Fragment>
+        ))}
+      </div>
+
+      <button
+        onClick={addProfile}
+        className="w-full mt-2 py-2.5 rounded-2xl border-2 border-dashed border-slate-300 text-[#0F2042] text-xs font-bold flex items-center justify-center gap-1.5 hover:border-[#0F2042]/50 hover:bg-blue-50/40 transition-colors"
+      >
+        <UserPlus className="w-4 h-4" />
+        הוסף פרופיל קול חדש
+      </button>
+
+      {trainingSpeaker && (
+        <TrainingOverlay
+          speaker={trainingSpeaker}
+          onComplete={completeTraining}
+          onCancel={() => setTrainingSpeaker(null)}
+        />
+      )}
+    </>
+  );
+}
+
+function VoiceProfileRow({ speaker, onTrain, onDelete, onRename }) {
+  const colors = SPEAKER_COLORS[speaker.color];
+  return (
+    <div className="w-full p-3 flex items-center gap-3">
+      <div className={`w-11 h-11 rounded-2xl ${colors.solid} text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0`}>
+        {speaker.name.charAt(0)}
+      </div>
+      <div className="flex-1 min-w-0">
+        <input
+          value={speaker.name}
+          onChange={(e) => onRename(e.target.value)}
+          className="w-full text-[14px] font-bold text-[#0F2042] bg-transparent focus:outline-none focus:bg-slate-50 rounded px-1 -mx-1"
+        />
+        <div className="flex items-center gap-1.5 mt-0.5">
+          {speaker.trained ? (
+            <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+              <CheckCircle2 className="w-2.5 h-2.5" />
+              מאומן
+            </span>
+          ) : (
+            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full">
+              ממתין לאימון
+            </span>
+          )}
+          <span className="text-[10px] text-slate-500">
+            {speaker.trained ? '30/30 שניות' : '0/30 שניות'}
+          </span>
+        </div>
+      </div>
+      <button
+        onClick={onTrain}
+        className={`flex-shrink-0 text-[11px] font-bold px-3 py-1.5 rounded-lg transition-colors ${
+          speaker.trained
+            ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            : 'bg-[#0F2042] text-white hover:bg-[#152a5a]'
+        }`}
+      >
+        {speaker.trained ? 'אמן מחדש' : 'אמן'}
+      </button>
+      <button
+        onClick={onDelete}
+        aria-label="מחק פרופיל"
+        className="text-slate-300 hover:text-rose-500 transition-colors p-1 flex-shrink-0"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+function TrainingOverlay({ speaker, onComplete, onCancel }) {
+  const [progress, setProgress] = useState(0);
+  const colors = SPEAKER_COLORS[speaker.color];
+
+  useEffect(() => {
+    const start = Date.now();
+    const duration = 3000;
+    const id = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min(100, (elapsed / duration) * 100);
+      setProgress(pct);
+      if (pct >= 100) {
+        clearInterval(id);
+        setTimeout(onComplete, 250);
+      }
+    }, 60);
+    return () => clearInterval(id);
+  }, [onComplete]);
+
+  return (
+    <div className="absolute inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center px-6 animate-slide-up">
+      <div className="bg-white rounded-3xl p-6 w-full shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Volume2 className="w-4 h-4 text-rose-600" />
+            <span className="text-[11px] font-bold text-rose-600 uppercase tracking-wide">מאמן פרופיל קול</span>
+          </div>
+          <button onClick={onCancel} className="text-slate-400 hover:text-slate-700" aria-label="בטל">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center text-center mb-4">
+          <div className="relative mb-3">
+            <span className="absolute inset-0 rounded-full bg-rose-500/30 animate-ping" />
+            <div className={`relative w-20 h-20 rounded-full ${colors.solid} flex items-center justify-center text-white text-3xl font-extrabold shadow-xl`}>
+              {speaker.name.charAt(0)}
+            </div>
+          </div>
+          <h3 className="text-lg font-extrabold text-[#0F2042] mb-1">{speaker.name}</h3>
+          <p className="text-xs text-slate-500">דבר/י לכ-30 שניות בקול טבעי</p>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex items-end gap-[3px] h-10 justify-center mb-3">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span
+                key={i}
+                className="w-[3px] rounded-full bg-rose-500 animate-pulse"
+                style={{
+                  height: `${10 + Math.abs(Math.sin((i + progress / 4) * 0.7)) * 28}px`,
+                  animationDelay: `${i * 0.05}s`,
+                  animationDuration: '0.7s'
+                }}
+              />
+            ))}
+          </div>
+          <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-emerald-500 rounded-full transition-all"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <div className="flex justify-between mt-1.5 text-[10px] font-bold text-slate-500 tabular-nums">
+            <span>{Math.round((progress / 100) * 30)} שניות</span>
+            <span>30 שניות</span>
+          </div>
+        </div>
+
+        <button
+          onClick={onCancel}
+          className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold hover:bg-slate-200"
+        >
+          בטל אימון
+        </button>
+      </div>
     </div>
   );
 }
