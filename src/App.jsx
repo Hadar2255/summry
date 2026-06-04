@@ -198,7 +198,7 @@ export default function App() {
         {/* Toast */}
         {toast && (
           <div className="absolute bottom-24 inset-x-4 z-50 animate-slide-up pointer-events-none">
-            <div className={`px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 ${
+            <div className={`pointer-events-none px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 ${
               toast.kind === 'success'
                 ? 'bg-emerald-600 text-white'
                 : 'bg-slate-800 text-white'
@@ -1188,23 +1188,25 @@ function BottomNav({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <div className="absolute bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 pb-5 pt-2 px-2">
-      <div className="flex items-stretch justify-around">
+    <div className="absolute bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-7 pt-2 px-4" style={{ touchAction: 'manipulation' }}>
+      <div className="flex items-stretch justify-around gap-1">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const active = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => setActiveTab(tab.id)}
-              className="flex-1 flex flex-col items-center gap-1 py-1.5 group"
+              className="flex-1 flex flex-col items-center gap-1 py-1.5 group cursor-pointer select-none"
+              style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
             >
-              <div className={`w-12 h-7 flex items-center justify-center rounded-full transition-all ${
-                active ? 'bg-[#0F2042] text-white' : 'text-slate-400 group-hover:text-[#0F2042]'
+              <div className={`w-12 h-7 flex items-center justify-center rounded-full transition-all pointer-events-none ${
+                active ? 'bg-[#0F2042] text-white' : 'text-slate-400'
               }`}>
                 <Icon className="w-[18px] h-[18px]" />
               </div>
-              <span className={`text-[10px] font-bold transition-colors ${active ? 'text-[#0F2042]' : 'text-slate-400'}`}>
+              <span className={`text-[10px] font-bold transition-colors pointer-events-none ${active ? 'text-[#0F2042]' : 'text-slate-400'}`}>
                 {tab.label}
               </span>
             </button>
