@@ -29,7 +29,6 @@ function formatDurationLabel(seconds) {
 export async function processRecording({
   blob,
   durationSec,
-  groqApiKey,
   modelId = DEFAULT_MODEL,
   onStage,
   onModelProgress,
@@ -82,7 +81,7 @@ export async function processRecording({
     stage('summarizing');
     let aiResult;
     try {
-      aiResult = await summarizeMeeting(text, { apiKey: groqApiKey, signal });
+      aiResult = await summarizeMeeting(text, { signal });
     } catch (e) {
       baseMeeting = {
         ...baseMeeting,
