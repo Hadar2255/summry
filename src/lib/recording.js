@@ -150,39 +150,3 @@ export function useRecorder() {
 
   return { state, duration, level, error, start, stop, cancel };
 }
-
-export async function blobToFloat32Mono16k(blob) {
-  const buf = await blob.arrayBuffer();
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const decodeCtx = new AudioCtx();
-  const decoded = await decodeCtx.decodeAudioData(buf.slice(0));
-  decodeCtx.close();
-
-  const targetRate = 16000;
-  const channels = decoded.numberOfChannels;
-  const source = new Float32Array(decoded.length);
-  if (channels === 1) {
-    decoded.copyFromChannel(source, 0);
-  } else {
-    const tmp = new Float32Array(decoded.length);
-    for (let c = 0; c < channels; c++) {
-      decoded.copyFromChannel(tmp, c);
-      for (let i = 0; i < tmp.length; i++) source[i] += tmp[i] / channels;
-    }
-  }
-
-  if (decoded.sampleRate === targetRate) return source;
-
-  const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-  const offline = new OfflineCtx(1, Math.ceil(decoded.duration * targetRate), targetRate);
-  const src = offline.createBufferSource();
-  const monoBuf = offline.createBuffer(1, source.length, decoded.sampleRate);
-  monoBuf.copyToChannel(source, 0);
-  src.buffer = monoBuf;
-  src.connect(offline.destination);
-  src.start();
-  const rendered = await offline.startRendering();
-  const out = new Float32Array(rendered.length);
-  rendered.copyFromChannel(out, 0);
-  return out;
-}

@@ -1,5 +1,4 @@
-import { blobToFloat32Mono16k } from './recording';
-import { transcribeAudio, DEFAULT_MODEL } from './transcribe';
+import { transcribeAudio } from './transcribe';
 import { summarizeMeeting } from './summarize';
 import { saveAudio, saveMeeting } from './storage';
 
@@ -29,9 +28,7 @@ function formatDurationLabel(seconds) {
 export async function processRecording({
   blob,
   durationSec,
-  modelId = DEFAULT_MODEL,
   onStage,
-  onModelProgress,
   signal
 }) {
   const id = newId();
@@ -55,25 +52,18 @@ export async function processRecording({
     transcriptChunks: [],
     tasks: [],
     proposedMeeting: { title: '', date: '', time: '', attendees: '' },
-    audioMime: blob.type,
-    modelId
+    audioMime: blob.type
   };
   await saveMeeting(baseMeeting);
 
   try {
-    stage('decoding');
-    const audio = await blobToFloat32Mono16k(blob);
+    stage('transcribing');
+    const { text, chunks } = await transcribeAudio(blob, { signal });
     if (signal?.aborted) throw new Error('aborted');
 
-    stage('transcribing');
-    const { text, chunks } = await transcribeAudio(audio, {
-      modelId,
-      onModelProgress: (p) => {
-        onModelProgress && onModelProgress(p);
-        stage('downloading-model', { progress: p.progress, file: p.file });
-      }
-    });
-    if (signal?.aborted) throw new Error('aborted');
+    if (!text || !text.trim()) {
+      throw new Error('התמלול חזר ריק. ייתכן שהאודיו שקט מדי או קצר מאוד.');
+    }
 
     baseMeeting = { ...baseMeeting, transcriptText: text, transcriptChunks: chunks };
     await saveMeeting(baseMeeting);
