@@ -5,8 +5,8 @@ import {
   CalendarDays, Mail, Shield, Lock, Zap,
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
   Signal, Wifi, BatteryFull, CheckSquare, Square,
-  MessageSquare, UserPlus, X, Key, Cpu, Loader2, AlertTriangle,
-  Eye, EyeOff, Brain, ArrowRight
+  MessageSquare, UserPlus, X, Cpu, Loader2, AlertTriangle,
+  Brain, ArrowRight
 } from 'lucide-react';
 
 import { useRecorder } from './lib/recording';
@@ -15,7 +15,7 @@ import {
   listMeetings, saveMeeting, deleteMeeting, getSetting, setSetting
 } from './lib/storage';
 import { WHISPER_MODELS, DEFAULT_MODEL, formatTimestamp } from './lib/transcribe';
-import { testGroqKey } from './lib/summarize';
+import { checkSummarizeBackend } from './lib/summarize';
 
 /* ============================================================
    SummAI — AI Meeting Assistant (Hebrew RTL, local-first)
@@ -119,7 +119,7 @@ export default function App() {
   const [activeTab, setActiveTab]           = useState('dashboard');
   const [meetings, setMeetings]             = useState([]);
   const [selectedMeetingId, setSelectedId]  = useState(null);
-  const [groqApiKey, setGroqApiKey]         = useState('');
+  const [backendStatus, setBackendStatus]   = useState(null);
   const [whisperModel, setWhisperModel]     = useState(DEFAULT_MODEL);
   const [speakers, setSpeakers]             = useState(DEFAULT_SPEAKERS);
   const [integrations, setIntegrations]     = useState({ calendar: false, gmail: false });
@@ -135,15 +135,13 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const [list, key, model, savedSpeakers, savedIntegrations] = await Promise.all([
+        const [list, model, savedSpeakers, savedIntegrations] = await Promise.all([
           listMeetings(),
-          getSetting('groqApiKey'),
           getSetting('whisperModel'),
           getSetting('speakers'),
           getSetting('integrations')
         ]);
         setMeetings(list || []);
-        if (key) setGroqApiKey(key);
         if (model) setWhisperModel(model);
         if (Array.isArray(savedSpeakers) && savedSpeakers.length) setSpeakers(savedSpeakers);
         if (savedIntegrations) setIntegrations(savedIntegrations);
@@ -153,15 +151,18 @@ export default function App() {
         setLoaded(true);
       }
     })();
+    checkSummarizeBackend().then(setBackendStatus);
+  }, []);
+
+  const refreshBackend = useCallback(async () => {
+    setBackendStatus(null);
+    const result = await checkSummarizeBackend();
+    setBackendStatus(result);
+    return result;
   }, []);
 
   useEffect(() => { if (loaded) setSetting('speakers', speakers); }, [speakers, loaded]);
   useEffect(() => { if (loaded) setSetting('integrations', integrations); }, [integrations, loaded]);
-
-  const updateGroqKey = useCallback(async (key) => {
-    setGroqApiKey(key);
-    await setSetting('groqApiKey', key);
-  }, []);
 
   const updateWhisperModel = useCallback(async (id) => {
     setWhisperModel(id);
@@ -199,7 +200,6 @@ export default function App() {
       const meeting = await processRecording({
         blob,
         durationSec,
-        groqApiKey,
         modelId: whisperModel,
         onStage: ({ stage, progress, file, error, warning }) => {
           setProcessing(prev => ({
@@ -229,7 +229,7 @@ export default function App() {
       showToast(e.message || 'שגיאה בעיבוד', 'error');
       setTimeout(() => setProcessing(null), 4500);
     }
-  }, [groqApiKey, whisperModel, showToast]);
+  }, [whisperModel, showToast]);
 
   const openMeeting = useCallback((m) => {
     setSelectedId(m.id);
@@ -243,7 +243,7 @@ export default function App() {
           {activeTab === 'dashboard' && (
             <DashboardScreen
               meetings={meetings}
-              groqApiKey={groqApiKey}
+              backendStatus={backendStatus}
               processing={processing}
               runPipeline={runPipeline}
               openMeeting={openMeeting}
@@ -269,8 +269,8 @@ export default function App() {
               setIntegrations={setIntegrations}
               speakers={speakers}
               setSpeakers={setSpeakers}
-              groqApiKey={groqApiKey}
-              updateGroqKey={updateGroqKey}
+              backendStatus={backendStatus}
+              refreshBackend={refreshBackend}
               whisperModel={whisperModel}
               updateWhisperModel={updateWhisperModel}
               meetings={meetings}
@@ -304,12 +304,14 @@ export default function App() {
 /*                  SCREEN 1 — DASHBOARD                        */
 /* ============================================================ */
 
-function DashboardScreen({ meetings, groqApiKey, processing, runPipeline, openMeeting, goToSettings, showToast }) {
+function DashboardScreen({ meetings, backendStatus, processing, runPipeline, openMeeting, goToSettings, showToast }) {
   const recorder = useRecorder();
   const { state: recState, duration, level, error: recError, start, stop } = recorder;
   const isRecording = recState === 'recording';
   const isStopping = recState === 'stopping';
   const isProcessing = !!processing;
+  const backendOk = backendStatus?.ok;
+  const backendDown = backendStatus && !backendStatus.ok;
 
   const handleToggle = useCallback(async () => {
     if (isRecording) {
@@ -318,18 +320,13 @@ function DashboardScreen({ meetings, groqApiKey, processing, runPipeline, openMe
         runPipeline(result.blob, result.durationSec);
       }
     } else {
-      if (!groqApiKey) {
-        showToast('הוסף מפתח Groq בהגדרות לפני שמתחילים', 'warning');
-        goToSettings();
-        return;
-      }
       try {
         await start();
       } catch (e) {
         showToast(e.message || 'לא ניתן להתחיל הקלטה', 'error');
       }
     }
-  }, [isRecording, stop, start, runPipeline, groqApiKey, showToast, goToSettings]);
+  }, [isRecording, stop, start, runPipeline, showToast]);
 
   useEffect(() => {
     if (recError) showToast(recError, 'error');
@@ -358,15 +355,15 @@ function DashboardScreen({ meetings, groqApiKey, processing, runPipeline, openMe
         </button>
       </header>
 
-      {!groqApiKey && !isProcessing && (
+      {backendDown && !isProcessing && (
         <button
           onClick={goToSettings}
           className="w-full mb-3 bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 flex items-start gap-2.5 text-right hover:bg-amber-100 transition-colors"
         >
           <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-[12.5px] font-bold text-amber-900">חסר מפתח Groq</p>
-            <p className="text-[11px] text-amber-800 mt-0.5">צריך מפתח חינמי כדי שה-AI יסכם פגישות. הקש להגדרה.</p>
+            <p className="text-[12.5px] font-bold text-amber-900">שרת ה-AI לא זמין</p>
+            <p className="text-[11px] text-amber-800 mt-0.5">{backendStatus?.error || 'בדוק הגדרות פריסה'}. אפשר עדיין להקליט — התמלול ייעשה, רק בלי סיכום אוטומטי.</p>
           </div>
           <ChevronRight className="w-4 h-4 text-amber-700 rotate-180 flex-shrink-0 mt-1" />
         </button>
@@ -396,7 +393,11 @@ function DashboardScreen({ meetings, groqApiKey, processing, runPipeline, openMe
       <div className="grid grid-cols-3 gap-2 mb-5">
         <Stat label="פגישות שמורות" value={String(meetings.length)} tone="default" />
         <Stat label="משימות פתוחות" value={String(openTasks)} tone="default" />
-        <Stat label="מפתח Groq" value={groqApiKey ? 'פעיל' : 'חסר'} tone={groqApiKey ? 'emerald' : 'amber'} />
+        <Stat
+          label="שרת AI"
+          value={backendStatus === null ? '...' : backendOk ? 'פעיל' : 'לא זמין'}
+          tone={backendOk ? 'emerald' : backendDown ? 'amber' : 'default'}
+        />
       </div>
 
       <div className="flex items-center justify-between mb-2.5">
@@ -742,7 +743,7 @@ function AnalysisScreen({ meeting, updateMeeting, removeMeeting, goToDashboard, 
           <div className="flex-1 min-w-0">
             <p className="text-[12px] font-bold text-amber-900">סיכום AI לא הופק</p>
             <p className="text-[10.5px] text-amber-800 mt-0.5 leading-snug">
-              התמלול נשמר אך Groq נכשל. בדוק את המפתח בהגדרות וערוך סיכום ידנית למטה.
+              התמלול נשמר אך שרת ה-AI לא הצליח לסכם. בדוק סטטוס בהגדרות וערוך סיכום ידנית למטה.
             </p>
           </div>
         </div>
@@ -983,7 +984,7 @@ function TranscriptSection({ chunks, transcriptText }) {
 /*               SCREEN 3 — SETTINGS & PRIVACY                  */
 /* ============================================================ */
 
-function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, groqApiKey, updateGroqKey, whisperModel, updateWhisperModel, meetings, showToast }) {
+function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, backendStatus, refreshBackend, whisperModel, updateWhisperModel, meetings, showToast }) {
   const toggle = (key, name) => {
     const next = !integrations[key];
     setIntegrations({ ...integrations, [key]: next });
@@ -1009,8 +1010,8 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
 
       <SettingsGroup title="מנוע AI">
         <AIEngineSection
-          groqApiKey={groqApiKey}
-          updateGroqKey={updateGroqKey}
+          backendStatus={backendStatus}
+          refreshBackend={refreshBackend}
           whisperModel={whisperModel}
           updateWhisperModel={updateWhisperModel}
           showToast={showToast}
@@ -1097,90 +1098,60 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
   );
 }
 
-function AIEngineSection({ groqApiKey, updateGroqKey, whisperModel, updateWhisperModel, showToast }) {
-  const [showKey, setShowKey] = useState(false);
-  const [draft, setDraft] = useState(groqApiKey);
-  const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState(null);
-  useEffect(() => setDraft(groqApiKey), [groqApiKey]);
+function AIEngineSection({ backendStatus, refreshBackend, whisperModel, updateWhisperModel, showToast }) {
+  const [refreshing, setRefreshing] = useState(false);
+  const backendOk = backendStatus?.ok;
+  const backendDown = backendStatus && !backendStatus.ok;
 
-  const dirty = draft !== groqApiKey;
-
-  const save = async () => {
-    await updateGroqKey(draft.trim());
-    setTestResult(null);
-    showToast('מפתח Groq נשמר במכשיר');
-  };
-
-  const handleTest = async () => {
-    setTesting(true);
-    setTestResult(null);
-    const result = await testGroqKey(draft.trim());
-    setTesting(false);
-    setTestResult(result);
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    const r = await refreshBackend();
+    setRefreshing(false);
+    showToast(r.ok ? '✓ שרת ה-AI פועל' : `✗ ${r.error}`, r.ok ? 'success' : 'error');
   };
 
   return (
     <div className="space-y-3">
       <div className="bg-white rounded-2xl border border-slate-200 p-3">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center">
-            <Key className="w-4 h-4 text-orange-700" />
+          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+            backendOk ? 'bg-emerald-100' : backendDown ? 'bg-rose-100' : 'bg-slate-100'
+          }`}>
+            <Brain className={`w-4 h-4 ${
+              backendOk ? 'text-emerald-700' : backendDown ? 'text-rose-700' : 'text-slate-500'
+            }`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-bold text-[#0F2042]">Groq API Key</p>
-            <p className="text-[10.5px] text-slate-500">ליצירת סיכומים ומשימות (חינם, console.groq.com)</p>
+            <p className="text-[13px] font-bold text-[#0F2042]">שרת סיכום AI</p>
+            <p className="text-[10.5px] text-slate-500">Groq Llama 3.3 דרך proxy ב-Vercel</p>
           </div>
-          {groqApiKey && !dirty && (
+          {backendStatus === null ? (
+            <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+          ) : backendOk ? (
             <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">פעיל</span>
+          ) : (
+            <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">לא זמין</span>
           )}
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="relative flex-1">
-            <input
-              type={showKey ? 'text' : 'password'}
-              value={draft}
-              onChange={(e) => { setDraft(e.target.value); setTestResult(null); }}
-              placeholder="gsk_..."
-              dir="ltr"
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 pr-9 text-[12px] text-[#0F2042] font-mono focus:outline-none focus:ring-2 focus:ring-[#0F2042]/30"
-              autoComplete="off"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-            />
-            <button
-              type="button"
-              onClick={() => setShowKey(!showKey)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
-              aria-label={showKey ? 'הסתר' : 'הצג'}
-            >
-              {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-            </button>
+        {backendDown && (
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-2.5 mb-2 text-[11px] text-rose-900 leading-snug">
+            <p className="font-bold mb-1">השרת לא מגיב:</p>
+            <p>{backendStatus.error}</p>
+            <p className="mt-1.5 text-rose-700">
+              ב-Vercel Dashboard → Project → Settings → Environment Variables → הוסף <code className="bg-rose-100 px-1 rounded">GROQ_API_KEY</code> עם המפתח שלך.
+            </p>
           </div>
-          <button
-            onClick={handleTest}
-            disabled={!draft || testing}
-            className="bg-slate-100 text-slate-700 text-[11px] font-bold px-2.5 py-2 rounded-lg disabled:opacity-50 flex items-center gap-1"
-          >
-            {testing ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-            בדוק
-          </button>
-          <button
-            onClick={save}
-            disabled={!dirty}
-            className="bg-[#0F2042] text-white text-[11px] font-bold px-2.5 py-2 rounded-lg disabled:opacity-40"
-          >
-            שמור
-          </button>
-        </div>
-        {testResult && (
-          <p className={`text-[11px] mt-2 font-semibold ${testResult.ok ? 'text-emerald-700' : 'text-rose-700'}`}>
-            {testResult.ok ? '✓ המפתח תקין ופועל' : `✗ ${testResult.error}`}
-          </p>
         )}
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="w-full bg-slate-100 text-slate-700 text-[11px] font-bold py-2 rounded-lg disabled:opacity-50 flex items-center justify-center gap-1"
+        >
+          {refreshing && <Loader2 className="w-3 h-3 animate-spin" />}
+          בדוק שוב
+        </button>
         <p className="text-[10px] text-slate-400 mt-2 leading-snug">
-          המפתח נשמר ב-IndexedDB באייפד שלך, לא נשלח לאף שרת מלבד Groq.
+          הסיכום עובר דרך /api/summarize בשרת — מפתח Groq שמור בצד השרת, לא חשוף בדפדפן.
         </p>
       </div>
 

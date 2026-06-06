@@ -1,75 +1,39 @@
-const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
+const API_ENDPOINT = '/api/summarize';
 
-export const SUMMARIZE_MODEL = 'llama-3.3-70b-versatile';
-
-const SYSTEM_PROMPT = `אתה עוזר AI לניתוח פגישות עסקיות בעברית.
-קיבלת תמלול של פגישה. הפק ניתוח מובנה בעברית בלבד בפורמט JSON.
-
-החזר JSON עם השדות הבאים בדיוק:
-{
-  "title": "כותרת קצרה (עד 8 מילים) שמסכמת את נושא הפגישה",
-  "summary": "סיכום מנהלים תמציתי (3-5 משפטים) המכסה את הנקודות המרכזיות וההחלטות",
-  "tasks": [
-    {
-      "text": "תיאור המשימה",
-      "assignee": "שם המבצע אם הוזכר, אחרת מחרוזת ריקה",
-      "deadline": "תאריך בפורמט YYYY-MM-DD אם הוזכר/מוסק, אחרת מחרוזת ריקה"
-    }
-  ],
-  "proposedMeeting": {
-    "title": "כותרת לפגישת המשך אם נדרשת, אחרת מחרוזת ריקה",
-    "date": "YYYY-MM-DD אם נקבע/הוסכם, אחרת מחרוזת ריקה",
-    "time": "HH:MM אם נקבע, אחרת מחרוזת ריקה",
-    "attendees": "שמות מופרדים בפסיק אם הוזכרו, אחרת מחרוזת ריקה"
-  }
-}
-
-חוקים:
-- תמיד החזר JSON תקני בלבד, ללא טקסט נוסף.
-- כל הטקסט חייב להיות בעברית.
-- אם אין משימות — החזר מערך ריק.
-- אל תמציא פרטים שלא הופיעו בתמלול.`;
-
-export async function summarizeMeeting(transcript, { apiKey, signal } = {}) {
-  if (!apiKey) throw new Error('חסר מפתח Groq API. הוסף בהגדרות.');
+export async function summarizeMeeting(transcript, { signal } = {}) {
   if (!transcript || !transcript.trim()) throw new Error('התמלול ריק');
 
-  const userMessage = `להלן תמלול הפגישה. הפק את ה-JSON המבוקש:\n\n${transcript}`;
-
-  const res = await fetch(GROQ_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      model: SUMMARIZE_MODEL,
-      response_format: { type: 'json_object' },
-      temperature: 0.2,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userMessage }
-      ]
-    }),
-    signal
-  });
-
-  if (!res.ok) {
-    const errBody = await res.text().catch(() => '');
-    if (res.status === 401) throw new Error('מפתח Groq לא תקין. בדוק בהגדרות.');
-    if (res.status === 429) throw new Error('חרגת ממכסת ה-Free Tier של Groq. נסה שוב בעוד דקה.');
-    throw new Error(`שגיאת Groq (${res.status}): ${errBody.slice(0, 200)}`);
+  let res;
+  try {
+    res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript }),
+      signal
+    });
+  } catch (e) {
+    throw new Error('לא ניתן להתחבר לשרת הסיכום (' + e.message + ')');
   }
 
-  const json = await res.json();
-  const content = json.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Groq לא החזיר תוכן');
+  let payload;
+  try {
+    payload = await res.json();
+  } catch {
+    throw new Error(`תגובת שרת לא תקינה (סטטוס ${res.status})`);
+  }
+
+  if (!res.ok) {
+    throw new Error(payload?.error || `שגיאת שרת (${res.status})`);
+  }
+
+  const content = payload?.content;
+  if (!content) throw new Error('השרת החזיר תגובה ריקה');
 
   let parsed;
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new Error('Groq החזיר JSON לא תקני');
+    throw new Error('המודל החזיר JSON לא תקני');
   }
 
   return {
@@ -91,14 +55,19 @@ export async function summarizeMeeting(transcript, { apiKey, signal } = {}) {
   };
 }
 
-export async function testGroqKey(apiKey) {
-  if (!apiKey) return { ok: false, error: 'חסר מפתח' };
+export async function checkSummarizeBackend() {
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/models', {
-      headers: { 'Authorization': `Bearer ${apiKey}` }
+    const res = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: 'בדיקה' })
     });
-    if (res.status === 401) return { ok: false, error: 'מפתח לא תקין' };
-    if (!res.ok) return { ok: false, error: `שגיאה (${res.status})` };
+    if (res.ok) return { ok: true };
+    const payload = await res.json().catch(() => ({}));
+    if (res.status === 500 && /GROQ_API_KEY/i.test(payload?.error || '')) {
+      return { ok: false, error: 'GROQ_API_KEY חסר ב-Vercel' };
+    }
+    if (res.status === 404) return { ok: false, error: '/api/summarize לא נמצא — האם הפריסה על Vercel?' };
     return { ok: true };
   } catch (e) {
     return { ok: false, error: e.message };
