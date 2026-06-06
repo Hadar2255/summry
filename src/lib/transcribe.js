@@ -1,78 +1,64 @@
-let _pipelinePromise = null;
-let _currentModel = null;
+const API_ENDPOINT = '/api/transcribe';
 
-export const WHISPER_MODELS = [
-  { id: 'Xenova/whisper-tiny', label: 'Tiny (מהיר, ~75MB)', sizeMB: 75 },
-  { id: 'Xenova/whisper-base', label: 'Base (מאוזן, ~150MB)', sizeMB: 150 },
-  { id: 'onnx-community/whisper-small', label: 'Small (איכותי לעברית, ~250MB)', sizeMB: 250 }
-];
+export async function transcribeAudio(blob, { signal, language = 'he' } = {}) {
+  if (!blob || !(blob instanceof Blob)) {
+    throw new Error('audio blob required');
+  }
 
-export const DEFAULT_MODEL = 'Xenova/whisper-base';
+  const ext = mimeToExtension(blob.type);
+  const form = new FormData();
+  form.append('audio', blob, `meeting.${ext}`);
+  form.append('language', language);
 
-export async function loadWhisper(modelId = DEFAULT_MODEL, onProgress) {
-  if (_pipelinePromise && _currentModel === modelId) return _pipelinePromise;
-
-  _currentModel = modelId;
-  _pipelinePromise = (async () => {
-    const { pipeline, env } = await import('@huggingface/transformers');
-    env.allowLocalModels = false;
-    env.useBrowserCache = true;
-
-    const dtype = 'q8';
-    let device = 'wasm';
-    try {
-      if (navigator.gpu && (await navigator.gpu.requestAdapter())) device = 'webgpu';
-    } catch {}
-
-    return await pipeline('automatic-speech-recognition', modelId, {
-      dtype,
-      device,
-      progress_callback: (p) => {
-        if (onProgress && p?.status === 'progress') {
-          onProgress({
-            file: p.file,
-            loaded: p.loaded,
-            total: p.total,
-            progress: p.progress ?? (p.total ? p.loaded / p.total : 0)
-          });
-        }
-      }
-    });
-  })();
-
+  let res;
   try {
-    return await _pipelinePromise;
+    res = await fetch(API_ENDPOINT, { method: 'POST', body: form, signal });
   } catch (e) {
-    _pipelinePromise = null;
-    _currentModel = null;
-    throw e;
+    throw new Error('לא ניתן להתחבר לשרת התמלול (' + e.message + ')');
+  }
+
+  let payload;
+  try {
+    payload = await res.json();
+  } catch {
+    throw new Error(`תגובת שרת לא תקינה (סטטוס ${res.status})`);
+  }
+
+  if (!res.ok) {
+    throw new Error(payload?.error || `שגיאת שרת תמלול (${res.status})`);
+  }
+
+  return {
+    text: payload.text || '',
+    chunks: Array.isArray(payload.chunks) ? payload.chunks : []
+  };
+}
+
+export async function checkTranscribeBackend() {
+  try {
+    const empty = new Blob([], { type: 'audio/webm' });
+    const form = new FormData();
+    form.append('audio', empty, 'ping.webm');
+    const res = await fetch(API_ENDPOINT, { method: 'POST', body: form });
+    if (res.ok) return { ok: true };
+    const payload = await res.json().catch(() => ({}));
+    if (res.status === 500 && /GROQ_API_KEY/i.test(payload?.error || '')) {
+      return { ok: false, error: 'GROQ_API_KEY חסר ב-Vercel' };
+    }
+    if (res.status === 404) return { ok: false, error: '/api/transcribe לא נמצא' };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: e.message };
   }
 }
 
-export async function transcribeAudio(audioFloat32, {
-  modelId = DEFAULT_MODEL,
-  language = 'he',
-  onModelProgress,
-  onChunk
-} = {}) {
-  const transcriber = await loadWhisper(modelId, onModelProgress);
-  const result = await transcriber(audioFloat32, {
-    language,
-    task: 'transcribe',
-    return_timestamps: true,
-    chunk_length_s: 30,
-    stride_length_s: 5,
-    callback_function: onChunk
-  });
-
-  const chunks = (result.chunks || []).map((c, i) => ({
-    id: i + 1,
-    start: c.timestamp?.[0] ?? 0,
-    end: c.timestamp?.[1] ?? 0,
-    text: (c.text || '').trim()
-  })).filter(c => c.text);
-
-  return { text: (result.text || '').trim(), chunks };
+function mimeToExtension(mime) {
+  if (!mime) return 'webm';
+  if (mime.includes('mp4')) return 'm4a';
+  if (mime.includes('ogg')) return 'ogg';
+  if (mime.includes('wav')) return 'wav';
+  if (mime.includes('mpeg')) return 'mp3';
+  return 'webm';
 }
 
 export function formatTimestamp(sec) {

@@ -5,16 +5,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,
-    port: 5173,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless'
-    }
-  },
-  optimizeDeps: {
-    exclude: ['@huggingface/transformers']
-  },
-  build: {
-    target: 'esnext'
+    port: 5173
   }
 });

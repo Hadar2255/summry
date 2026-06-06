@@ -6,7 +6,7 @@ import {
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
   Signal, Wifi, BatteryFull, CheckSquare, Square,
   MessageSquare, UserPlus, X, Cpu, Loader2, AlertTriangle,
-  Brain, ArrowRight
+  Brain, ArrowRight, RefreshCw
 } from 'lucide-react';
 
 import { useRecorder } from './lib/recording';
@@ -14,15 +14,15 @@ import { processRecording } from './lib/pipeline';
 import {
   listMeetings, saveMeeting, deleteMeeting, getSetting, setSetting
 } from './lib/storage';
-import { WHISPER_MODELS, DEFAULT_MODEL, formatTimestamp } from './lib/transcribe';
+import { formatTimestamp, checkTranscribeBackend } from './lib/transcribe';
 import { checkSummarizeBackend } from './lib/summarize';
 
 /* ============================================================
-   SummAI — AI Meeting Assistant (Hebrew RTL, local-first)
-   - Local recording (MediaRecorder)
-   - On-device transcription (Transformers.js + Whisper)
-   - Cloud summarization (Groq Llama 3.3, user's own key)
-   - All data stored in IndexedDB on device
+   SummAI — AI Meeting Assistant (Hebrew RTL)
+   - Local recording (MediaRecorder, browser)
+   - Server transcription (Groq Whisper-large-v3-turbo via /api)
+   - Server summarization (Groq Llama 3.3 via /api)
+   - Meetings + audio stored in IndexedDB on device
    ============================================================ */
 
 const ASSIGNEES = ['דנה כהן', 'יוסי לוי', 'נועה שמש', 'רינה אבני', 'אורי ברק'];
@@ -44,13 +44,27 @@ const DEFAULT_SPEAKERS = [
 
 const STAGE_LABELS = {
   'saving-audio':       { label: 'שומר אודיו', detail: 'מאחסן את ההקלטה במכשיר' },
-  'decoding':           { label: 'מעבד אודיו', detail: 'ממיר ל-16kHz מונו' },
-  'downloading-model':  { label: 'מוריד מודל Whisper', detail: 'פעם אחת בלבד — נשמר ל-cache' },
-  'transcribing':       { label: 'מתמלל בעברית', detail: 'Whisper רץ מקומית במכשיר' },
-  'summarizing':        { label: 'מסכם עם Groq', detail: 'Llama 3.3 מחלץ סיכום ומשימות' },
+  'transcribing':       { label: 'מתמלל בעברית', detail: 'Groq Whisper-large דרך השרת' },
+  'summarizing':        { label: 'מסכם עם Llama 3.3', detail: 'מחלץ סיכום, משימות ופגישות מוצעות' },
   'done':               { label: 'מוכן!', detail: '' },
   'error':              { label: 'שגיאה',  detail: '' }
 };
+
+const PIPELINE_STAGES = ['saving-audio', 'transcribing', 'summarizing', 'done'];
+
+async function runBackendChecks() {
+  const [transcribe, summarize] = await Promise.all([
+    checkTranscribeBackend(),
+    checkSummarizeBackend()
+  ]);
+  const ok = transcribe.ok && summarize.ok;
+  return {
+    ok,
+    error: transcribe.ok ? summarize.error : transcribe.error,
+    transcribe,
+    summarize
+  };
+}
 
 function formatHebrewDate(iso) {
   try {
@@ -120,7 +134,6 @@ export default function App() {
   const [meetings, setMeetings]             = useState([]);
   const [selectedMeetingId, setSelectedId]  = useState(null);
   const [backendStatus, setBackendStatus]   = useState(null);
-  const [whisperModel, setWhisperModel]     = useState(DEFAULT_MODEL);
   const [speakers, setSpeakers]             = useState(DEFAULT_SPEAKERS);
   const [integrations, setIntegrations]     = useState({ calendar: false, gmail: false });
   const [processing, setProcessing]         = useState(null);
@@ -135,14 +148,12 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const [list, model, savedSpeakers, savedIntegrations] = await Promise.all([
+        const [list, savedSpeakers, savedIntegrations] = await Promise.all([
           listMeetings(),
-          getSetting('whisperModel'),
           getSetting('speakers'),
           getSetting('integrations')
         ]);
         setMeetings(list || []);
-        if (model) setWhisperModel(model);
         if (Array.isArray(savedSpeakers) && savedSpeakers.length) setSpeakers(savedSpeakers);
         if (savedIntegrations) setIntegrations(savedIntegrations);
       } catch (e) {
@@ -151,23 +162,18 @@ export default function App() {
         setLoaded(true);
       }
     })();
-    checkSummarizeBackend().then(setBackendStatus);
+    runBackendChecks().then(setBackendStatus);
   }, []);
 
   const refreshBackend = useCallback(async () => {
     setBackendStatus(null);
-    const result = await checkSummarizeBackend();
+    const result = await runBackendChecks();
     setBackendStatus(result);
     return result;
   }, []);
 
   useEffect(() => { if (loaded) setSetting('speakers', speakers); }, [speakers, loaded]);
   useEffect(() => { if (loaded) setSetting('integrations', integrations); }, [integrations, loaded]);
-
-  const updateWhisperModel = useCallback(async (id) => {
-    setWhisperModel(id);
-    await setSetting('whisperModel', id);
-  }, []);
 
   const selectedMeeting = useMemo(
     () => meetings.find(m => m.id === selectedMeetingId) || null,
@@ -200,12 +206,10 @@ export default function App() {
       const meeting = await processRecording({
         blob,
         durationSec,
-        modelId: whisperModel,
-        onStage: ({ stage, progress, file, error, warning }) => {
+        onStage: ({ stage, progress, error, warning }) => {
           setProcessing(prev => ({
             stage,
             progress: progress ?? prev?.progress ?? 0,
-            file: file ?? prev?.file,
             error,
             warning
           }));
@@ -229,7 +233,7 @@ export default function App() {
       showToast(e.message || 'שגיאה בעיבוד', 'error');
       setTimeout(() => setProcessing(null), 4500);
     }
-  }, [whisperModel, showToast]);
+  }, [showToast]);
 
   const openMeeting = useCallback((m) => {
     setSelectedId(m.id);
@@ -271,8 +275,6 @@ export default function App() {
               setSpeakers={setSpeakers}
               backendStatus={backendStatus}
               refreshBackend={refreshBackend}
-              whisperModel={whisperModel}
-              updateWhisperModel={updateWhisperModel}
               meetings={meetings}
               showToast={showToast}
             />
@@ -506,16 +508,14 @@ function RecordingCard({ isRecording, isStopping, duration, level, onToggle }) {
 }
 
 function ProcessingCard({ processing }) {
-  const { stage, progress, file, error, warning } = processing;
+  const { stage, error, warning } = processing;
   const info = STAGE_LABELS[stage] || { label: stage, detail: '' };
-  const pct = Math.max(0, Math.min(100, Math.round((progress || 0) * 100)));
   const isError = stage === 'error';
 
-  const stages = ['saving-audio', 'decoding', 'downloading-model', 'transcribing', 'summarizing', 'done'];
-  const idx = stages.indexOf(stage);
+  const idx = PIPELINE_STAGES.indexOf(stage);
   const totalProgress = isError ? 0
     : stage === 'done' ? 100
-    : Math.round(((Math.max(0, idx) + (progress || 0)) / stages.length) * 100);
+    : Math.round(((Math.max(0, idx) + 0.4) / PIPELINE_STAGES.length) * 100);
 
   return (
     <div className={`relative rounded-3xl p-5 mb-3 overflow-hidden border-2 ${
@@ -536,7 +536,7 @@ function ProcessingCard({ processing }) {
             {info.label}
           </p>
           {(info.detail || error) && (
-            <p className={`text-[11px] mt-0.5 leading-snug ${isError ? 'text-rose-700' : 'text-slate-500'}`}>
+            <p className={`text-[11px] mt-0.5 leading-snug ${isError ? 'text-rose-700' : 'text-slate-500'}`} style={{ wordBreak: 'break-word' }}>
               {error || info.detail}
             </p>
           )}
@@ -552,14 +552,9 @@ function ProcessingCard({ processing }) {
             />
           </div>
           <div className="flex items-center justify-between text-[10px] font-bold">
-            <span className="text-slate-500">שלב {Math.max(1, idx + 1)} מתוך {stages.length - 1}</span>
-            <span className="text-[#0F2042]">
-              {stage === 'downloading-model' && pct > 0 ? `הורדה: ${pct}%` : `${totalProgress}%`}
-            </span>
+            <span className="text-slate-500">שלב {Math.max(1, idx + 1)} מתוך {PIPELINE_STAGES.length - 1}</span>
+            <span className="text-[#0F2042]">{totalProgress}%</span>
           </div>
-          {stage === 'downloading-model' && file && (
-            <p className="text-[10px] text-slate-400 mt-1 truncate" dir="ltr">{file}</p>
-          )}
           {warning && (
             <div className="mt-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-[11px] text-amber-900">
               <AlertTriangle className="w-3 h-3 inline-block ml-1" />
@@ -984,7 +979,7 @@ function TranscriptSection({ chunks, transcriptText }) {
 /*               SCREEN 3 — SETTINGS & PRIVACY                  */
 /* ============================================================ */
 
-function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, backendStatus, refreshBackend, whisperModel, updateWhisperModel, meetings, showToast }) {
+function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, backendStatus, refreshBackend, meetings, showToast }) {
   const toggle = (key, name) => {
     const next = !integrations[key];
     setIntegrations({ ...integrations, [key]: next });
@@ -995,7 +990,7 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
     <div className="px-5 pt-1">
       <header className="py-3 mb-2">
         <h1 className="text-xl font-extrabold text-[#0F2042]">הגדרות ופרטיות</h1>
-        <p className="text-[11px] text-slate-500 mt-0.5">מפתחות AI ומודלים — הכל אצלך במכשיר</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">מצב חיבור לשרת ופרופילים</p>
       </header>
 
       <div className="bg-white rounded-2xl border border-slate-200 p-3 mb-4 flex items-center gap-3">
@@ -1012,8 +1007,6 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
         <AIEngineSection
           backendStatus={backendStatus}
           refreshBackend={refreshBackend}
-          whisperModel={whisperModel}
-          updateWhisperModel={updateWhisperModel}
           showToast={showToast}
         />
       </SettingsGroup>
@@ -1067,10 +1060,10 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
               </span>
             </div>
             <div className="space-y-2">
-              <SecurityRow icon={<Mic className="w-4 h-4" />} title="אודיו נשמר במכשיר בלבד" desc="IndexedDB מקומי, לא מועלה לשרת" />
-              <SecurityRow icon={<Cpu className="w-4 h-4" />} title="תמלול במכשיר" desc="Whisper דרך WebGPU/WASM" />
-              <SecurityRow icon={<Brain className="w-4 h-4" />} title="טקסט בלבד נשלח ל-Groq" desc="לסיכום AI עם המפתח שלך" />
-              <SecurityRow icon={<Lock className="w-4 h-4" />} title="ללא חשבון, ללא שרת" desc="הכל בדפדפן" />
+              <SecurityRow icon={<Mic className="w-4 h-4" />} title="אודיו נשמר במכשיר" desc="עותק נשלח לתמלול ונמחק" />
+              <SecurityRow icon={<Cpu className="w-4 h-4" />} title="תמלול ב-Groq Whisper" desc="דרך השרת שלך ב-Vercel" />
+              <SecurityRow icon={<Brain className="w-4 h-4" />} title="סיכום ב-Llama 3.3" desc="דרך השרת שלך ב-Vercel" />
+              <SecurityRow icon={<Lock className="w-4 h-4" />} title="מפתח Groq רק בשרת" desc="לא בקוד הדפדפן" />
             </div>
           </div>
         </div>
@@ -1098,95 +1091,73 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
   );
 }
 
-function AIEngineSection({ backendStatus, refreshBackend, whisperModel, updateWhisperModel, showToast }) {
+function AIEngineSection({ backendStatus, refreshBackend, showToast }) {
   const [refreshing, setRefreshing] = useState(false);
-  const backendOk = backendStatus?.ok;
-  const backendDown = backendStatus && !backendStatus.ok;
+
+  const t = backendStatus?.transcribe;
+  const s = backendStatus?.summarize;
 
   const handleRefresh = async () => {
     setRefreshing(true);
     const r = await refreshBackend();
     setRefreshing(false);
-    showToast(r.ok ? '✓ שרת ה-AI פועל' : `✗ ${r.error}`, r.ok ? 'success' : 'error');
+    showToast(r.ok ? '✓ השרת מגיב' : `✗ ${r.error}`, r.ok ? 'success' : 'error');
   };
 
   return (
     <div className="space-y-3">
       <div className="bg-white rounded-2xl border border-slate-200 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
-            backendOk ? 'bg-emerald-100' : backendDown ? 'bg-rose-100' : 'bg-slate-100'
-          }`}>
-            <Brain className={`w-4 h-4 ${
-              backendOk ? 'text-emerald-700' : backendDown ? 'text-rose-700' : 'text-slate-500'
-            }`} />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <Brain className="w-4 h-4 text-indigo-700" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-bold text-[#0F2042]">שרת סיכום AI</p>
-            <p className="text-[10.5px] text-slate-500">Groq Llama 3.3 דרך proxy ב-Vercel</p>
+            <p className="text-[13px] font-bold text-[#0F2042]">חיבור לשרת AI</p>
+            <p className="text-[10.5px] text-slate-500">Groq דרך Vercel — תמלול + סיכום</p>
           </div>
-          {backendStatus === null ? (
-            <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
-          ) : backendOk ? (
-            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">פעיל</span>
-          ) : (
-            <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">לא זמין</span>
-          )}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            aria-label="בדוק שוב"
+            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center disabled:opacity-50"
+          >
+            {refreshing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+          </button>
         </div>
-        {backendDown && (
-          <div className="bg-rose-50 border border-rose-200 rounded-lg p-2.5 mb-2 text-[11px] text-rose-900 leading-snug">
+
+        <BackendRow label="/api/transcribe" status={t} />
+        <div className="h-px bg-slate-100 my-2" />
+        <BackendRow label="/api/summarize" status={s} />
+
+        {backendStatus && !backendStatus.ok && (
+          <div className="mt-2.5 bg-rose-50 border border-rose-200 rounded-lg p-2.5 text-[11px] text-rose-900 leading-snug">
             <p className="font-bold mb-1">השרת לא מגיב:</p>
-            <p>{backendStatus.error}</p>
+            <p style={{ wordBreak: 'break-word' }}>{backendStatus.error}</p>
             <p className="mt-1.5 text-rose-700">
-              ב-Vercel Dashboard → Project → Settings → Environment Variables → הוסף <code className="bg-rose-100 px-1 rounded">GROQ_API_KEY</code> עם המפתח שלך.
+              Vercel → Project → Settings → Environment Variables → הוסף <code className="bg-rose-100 px-1 rounded">GROQ_API_KEY</code> ואז Redeploy.
             </p>
           </div>
         )}
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="w-full bg-slate-100 text-slate-700 text-[11px] font-bold py-2 rounded-lg disabled:opacity-50 flex items-center justify-center gap-1"
-        >
-          {refreshing && <Loader2 className="w-3 h-3 animate-spin" />}
-          בדוק שוב
-        </button>
-        <p className="text-[10px] text-slate-400 mt-2 leading-snug">
-          הסיכום עובר דרך /api/summarize בשרת — מפתח Groq שמור בצד השרת, לא חשוף בדפדפן.
-        </p>
-      </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-3">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center">
-            <Cpu className="w-4 h-4 text-indigo-700" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-bold text-[#0F2042]">מודל תמלול (Whisper)</p>
-            <p className="text-[10.5px] text-slate-500">רץ מקומית. מודל גדול = איכות עברית טובה יותר</p>
-          </div>
-        </div>
-        <div className="space-y-1.5">
-          {WHISPER_MODELS.map(m => (
-            <button
-              key={m.id}
-              onClick={() => { updateWhisperModel(m.id); showToast(`מודל ${m.label} נבחר`); }}
-              className={`w-full text-right p-2.5 rounded-xl border-2 transition-colors ${
-                whisperModel === m.id
-                  ? 'bg-[#0F2042] border-[#0F2042] text-white'
-                  : 'bg-slate-50 border-slate-200 text-[#0F2042] hover:border-[#0F2042]/40'
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[12px] font-bold">{m.label}</span>
-                {whisperModel === m.id && <CheckCircle2 className="w-4 h-4" />}
-              </div>
-            </button>
-          ))}
-        </div>
-        <p className="text-[10px] text-slate-400 mt-2 leading-snug">
-          המודל יורד פעם אחת ל-cache. החלפה תוריד אחד חדש.
+        <p className="text-[10px] text-slate-400 mt-2.5 leading-snug">
+          המפתח שמור בצד השרת (Vercel env var). הדפדפן רק שולח אודיו וטקסט ל-/api.
         </p>
       </div>
+    </div>
+  );
+}
+
+function BackendRow({ label, status }) {
+  return (
+    <div className="flex items-center gap-2">
+      <code className="text-[11px] text-[#0F2042] font-mono flex-1" dir="ltr">{label}</code>
+      {!status ? (
+        <Loader2 className="w-3.5 h-3.5 text-slate-400 animate-spin" />
+      ) : status.ok ? (
+        <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">פעיל</span>
+      ) : (
+        <span className="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-full">לא זמין</span>
+      )}
     </div>
   );
 }
