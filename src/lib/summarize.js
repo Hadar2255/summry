@@ -37,6 +37,7 @@ export async function summarizeMeeting(transcript, { signal } = {}) {
   }
 
   return {
+    correctedTranscript: typeof parsed.correctedTranscript === 'string' ? parsed.correctedTranscript.trim() : '',
     title: String(parsed.title || 'פגישה ללא כותרת').trim(),
     summary: String(parsed.summary || '').trim(),
     tasks: Array.isArray(parsed.tasks) ? parsed.tasks.map((t, i) => ({
