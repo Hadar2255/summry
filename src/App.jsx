@@ -6,7 +6,7 @@ import {
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
   Signal, Wifi, BatteryFull, CheckSquare, Square,
   MessageSquare, UserPlus, X, Cpu, Loader2, AlertTriangle,
-  Brain, ArrowRight, RefreshCw
+  Brain, ArrowRight, RefreshCw, Send, CalendarPlus, ExternalLink
 } from 'lucide-react';
 
 import { useRecorder } from './lib/recording';
@@ -16,6 +16,10 @@ import {
 } from './lib/storage';
 import { formatTimestamp, checkTranscribeBackend } from './lib/transcribe';
 import { checkSummarizeBackend } from './lib/summarize';
+import {
+  mailtoUrl, gmailComposeUrl, buildEmailDraft,
+  calendarLinkForMeeting, calendarLinkForTask
+} from './lib/share';
 
 /* ============================================================
    SummAI — AI Meeting Assistant (Hebrew RTL)
@@ -135,7 +139,6 @@ export default function App() {
   const [selectedMeetingId, setSelectedId]  = useState(null);
   const [backendStatus, setBackendStatus]   = useState(null);
   const [speakers, setSpeakers]             = useState(DEFAULT_SPEAKERS);
-  const [integrations, setIntegrations]     = useState({ calendar: false, gmail: false });
   const [processing, setProcessing]         = useState(null);
   const [toast, setToast]                   = useState(null);
   const [loaded, setLoaded]                 = useState(false);
@@ -148,14 +151,12 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const [list, savedSpeakers, savedIntegrations] = await Promise.all([
+        const [list, savedSpeakers] = await Promise.all([
           listMeetings(),
-          getSetting('speakers'),
-          getSetting('integrations')
+          getSetting('speakers')
         ]);
         setMeetings(list || []);
         if (Array.isArray(savedSpeakers) && savedSpeakers.length) setSpeakers(savedSpeakers);
-        if (savedIntegrations) setIntegrations(savedIntegrations);
       } catch (e) {
         console.error('Load failed', e);
       } finally {
@@ -173,7 +174,6 @@ export default function App() {
   }, []);
 
   useEffect(() => { if (loaded) setSetting('speakers', speakers); }, [speakers, loaded]);
-  useEffect(() => { if (loaded) setSetting('integrations', integrations); }, [integrations, loaded]);
 
   const selectedMeeting = useMemo(
     () => meetings.find(m => m.id === selectedMeetingId) || null,
@@ -269,8 +269,6 @@ export default function App() {
           )}
           {activeTab === 'settings' && (
             <SettingsScreen
-              integrations={integrations}
-              setIntegrations={setIntegrations}
               speakers={speakers}
               setSpeakers={setSpeakers}
               backendStatus={backendStatus}
@@ -775,6 +773,8 @@ function AnalysisScreen({ meeting, updateMeeting, removeMeeting, goToDashboard, 
         </div>
       </Section>
 
+      <EmailSection meeting={meeting} showToast={showToast} />
+
       <TranscriptSection chunks={transcriptChunks} transcriptText={meeting.transcriptText || ''} />
 
       <Section icon={<ListChecks className="w-4 h-4 text-[#0F2042]" />} title="משימות לביצוע" aside={`${openCount} פתוחות`}>
@@ -835,6 +835,18 @@ function AnalysisScreen({ meeting, updateMeeting, removeMeeting, goToDashboard, 
                   />
                 </div>
               </div>
+              {t.deadline && t.text && (
+                <a
+                  href={calendarLinkForTask(t, meeting.title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 mr-7 inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg px-2.5 py-1.5 transition-colors"
+                >
+                  <CalendarPlus className="w-3.5 h-3.5" />
+                  הוסף ליומן Google
+                  <ExternalLink className="w-3 h-3 opacity-60" />
+                </a>
+              )}
             </div>
           ))}
         </div>
@@ -892,13 +904,28 @@ function AnalysisScreen({ meeting, updateMeeting, removeMeeting, goToDashboard, 
                 />
               </Field>
 
-              <button
-                onClick={() => showToast('אינטגרציה ליומן תהיה זמינה בקרוב')}
+              <a
+                href={calendarLinkForMeeting({
+                  title: proposedMeeting.title,
+                  date: proposedMeeting.date,
+                  time: proposedMeeting.time,
+                  attendees: proposedMeeting.attendees,
+                  details: `מתוך הפגישה: ${meeting.title || ''}\nנוצר ע"י SummAI`
+                }) || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!proposedMeeting.date) {
+                    e.preventDefault();
+                    showToast('הוסף תאריך לפגישה כדי לפתוח ביומן', 'warning');
+                  }
+                }}
                 className="w-full mt-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/25 transition-colors"
               >
                 <CalendarIcon className="w-4 h-4" />
-                ערוך ואשר פגישה ביומן
-              </button>
+                פתח ביומן Google לאישור
+                <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+              </a>
             </div>
           </div>
         </Section>
@@ -926,6 +953,82 @@ function Field({ label, children }) {
       <label className="text-[10px] font-bold text-slate-500 mb-1 block">{label}</label>
       {children}
     </div>
+  );
+}
+
+function EmailSection({ meeting, showToast }) {
+  const [to, setTo] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const draft = useMemo(() => buildEmailDraft(meeting), [meeting]);
+
+  const hasContent = (meeting.summary || '').trim() || (meeting.tasks || []).length > 0;
+  if (!hasContent) return null;
+
+  const openMail = () => {
+    window.location.href = mailtoUrl(meeting, to.trim());
+    showToast('נפתח דראפט במייל — בדקי ושלחי');
+  };
+
+  const openGmail = () => {
+    window.open(gmailComposeUrl(meeting, to.trim()), '_blank', 'noopener');
+    showToast('נפתח דראפט ב-Gmail — בדקי ושלחי');
+  };
+
+  return (
+    <Section icon={<Mail className="w-4 h-4 text-[#0F2042]" />} title="שליחת סיכום במייל" aside="דראפט מוכן">
+      <div className="bg-white rounded-2xl border border-slate-200 p-3 space-y-2.5">
+        <Field label="נמען (אופציונלי)">
+          <input
+            type="email"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+            placeholder="name@example.com"
+            dir="ltr"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            className="w-full text-xs font-semibold text-[#0F2042] bg-slate-50 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F2042]/30 placeholder:text-slate-400 placeholder:font-normal"
+          />
+        </Field>
+
+        <button
+          onClick={() => setShowPreview(v => !v)}
+          className="w-full flex items-center justify-between text-[11px] font-bold text-slate-500 hover:text-[#0F2042] py-1"
+        >
+          <span>{showPreview ? 'הסתר תצוגה מקדימה' : 'הצג תצוגה מקדימה של המייל'}</span>
+          <ChevronRight className={`w-3.5 h-3.5 transition-transform ${showPreview ? '-rotate-90' : 'rotate-180'}`} />
+        </button>
+
+        {showPreview && (
+          <div className="bg-slate-50 rounded-lg p-2.5 border border-slate-100">
+            <p className="text-[10px] font-bold text-slate-500 mb-0.5">נושא</p>
+            <p className="text-[12px] font-semibold text-[#0F2042] mb-2">{draft.subject}</p>
+            <p className="text-[10px] font-bold text-slate-500 mb-0.5">תוכן</p>
+            <pre className="text-[11px] text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">{draft.body}</pre>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          <button
+            onClick={openMail}
+            className="bg-[#0F2042] hover:bg-[#152a5a] text-white py-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <Send className="w-3.5 h-3.5" />
+            אפליקציית מייל
+          </button>
+          <button
+            onClick={openGmail}
+            className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 py-2.5 rounded-xl text-[12px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            Gmail
+          </button>
+        </div>
+        <p className="text-[10px] text-slate-400 leading-snug">
+          הדראפט נפתח מוכן עם הסיכום והמשימות. את רק בודקת ולוחצת "שלח".
+        </p>
+      </div>
+    </Section>
   );
 }
 
@@ -979,13 +1082,7 @@ function TranscriptSection({ chunks, transcriptText }) {
 /*               SCREEN 3 — SETTINGS & PRIVACY                  */
 /* ============================================================ */
 
-function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, backendStatus, refreshBackend, meetings, showToast }) {
-  const toggle = (key, name) => {
-    const next = !integrations[key];
-    setIntegrations({ ...integrations, [key]: next });
-    showToast(next ? `${name} חובר (סימולציה)` : `החיבור ל-${name} נותק`);
-  };
-
+function SettingsScreen({ speakers, setSpeakers, backendStatus, refreshBackend, meetings, showToast }) {
   return (
     <div className="px-5 pt-1">
       <header className="py-3 mb-2">
@@ -1011,26 +1108,25 @@ function SettingsScreen({ integrations, setIntegrations, speakers, setSpeakers, 
         />
       </SettingsGroup>
 
-      <SettingsGroup title="אינטגרציות (בקרוב)">
+      <SettingsGroup title="אינטגרציות">
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <IntegrationRow
+          <InfoRow
+            icon={<Mail className="w-5 h-5 text-rose-500" />}
+            bg="bg-rose-50"
+            title="שליחת מייל"
+            desc="פותח דראפט מוכן באפליקציית המייל או ב-Gmail — את שולחת"
+          />
+          <div className="h-px bg-slate-100 mr-[68px]" />
+          <InfoRow
             icon={<CalendarDays className="w-5 h-5 text-blue-600" />}
             bg="bg-blue-50"
             title="Google Calendar"
-            desc="סנכרון פגישות והוספה אוטומטית"
-            connected={integrations.calendar}
-            onToggle={() => toggle('calendar', 'Google Calendar')}
-          />
-          <div className="h-px bg-slate-100 mr-[68px]" />
-          <IntegrationRow
-            icon={<Mail className="w-5 h-5 text-rose-500" />}
-            bg="bg-rose-50"
-            title="Gmail"
-            desc="שליחת סיכומים ועדכוני משימות"
-            connected={integrations.gmail}
-            onToggle={() => toggle('gmail', 'Gmail')}
+            desc="כל משימה ופגישה נפתחות ביומן עם הפרטים — את מאשרת"
           />
         </div>
+        <p className="text-[10px] text-slate-400 mt-2 px-1 leading-snug">
+          הפעולות זמינות במסך ניתוח הפגישה. ללא חיבור חשבון — האפליקציה רק מכינה דראפט ואת מאשרת בלחיצה.
+        </p>
       </SettingsGroup>
 
       <SettingsGroup title="פרופילי דובר (פיתוח עתידי)">
@@ -1171,31 +1267,17 @@ function SettingsGroup({ title, children }) {
   );
 }
 
-function IntegrationRow({ icon, bg, title, desc, connected, onToggle }) {
+function InfoRow({ icon, bg, title, desc }) {
   return (
     <div className="w-full p-3 flex items-center gap-3">
       <div className={`w-11 h-11 rounded-2xl ${bg} flex items-center justify-center flex-shrink-0`}>
         {icon}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <p className="text-[14px] font-bold text-[#0F2042]">{title}</p>
-          {connected && (
-            <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full">
-              סימולציה
-            </span>
-          )}
-        </div>
-        <p className="text-[11px] text-slate-500 truncate">{desc}</p>
+        <p className="text-[14px] font-bold text-[#0F2042]">{title}</p>
+        <p className="text-[11px] text-slate-500 leading-snug">{desc}</p>
       </div>
-      <button
-        onClick={onToggle}
-        aria-pressed={connected}
-        aria-label={`${connected ? 'נתק' : 'חבר'} ${title}`}
-        className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors ${connected ? 'bg-emerald-500' : 'bg-slate-300'}`}
-      >
-        <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${connected ? 'right-0.5' : 'right-[22px]'}`} />
-      </button>
+      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
     </div>
   );
 }
