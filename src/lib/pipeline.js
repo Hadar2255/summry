@@ -90,6 +90,8 @@ export async function processRecording({
       summary: aiResult.summary,
       tasks: aiResult.tasks,
       proposedMeeting: aiResult.proposedMeeting,
+      rawTranscriptText: text,
+      transcriptText: aiResult.correctedTranscript || text,
       status: 'done'
     };
     await saveMeeting(finalMeeting);
