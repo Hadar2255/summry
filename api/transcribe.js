@@ -1,6 +1,7 @@
 export const config = { runtime: 'edge' };
 
-const TRANSCRIBE_MODEL = 'whisper-large-v3-turbo';
+const TRANSCRIBE_MODEL = 'whisper-large-v3';
+const HEBREW_PROMPT = 'תמלול פגישה עסקית בעברית. דוברים מנהלים, צוות פיתוח, לקוחות. נושאים: תקציב, פרויקטים, משימות, לוחות זמנים, החלטות.';
 
 function json(body, init = {}) {
   return new Response(JSON.stringify(body), {
@@ -33,12 +34,20 @@ export default async function handler(req) {
 
   const language = (inForm.get('language') || 'he').toString();
 
+  const promptParam = inForm.get('prompt');
+  const customPrompt = typeof promptParam === 'string' && promptParam.trim() ? promptParam.trim() : null;
+
   const groqForm = new FormData();
   groqForm.append('file', audio, audio.name || 'meeting.webm');
   groqForm.append('model', TRANSCRIBE_MODEL);
   groqForm.append('language', language);
   groqForm.append('response_format', 'verbose_json');
   groqForm.append('temperature', '0');
+  if (language === 'he') {
+    groqForm.append('prompt', customPrompt || HEBREW_PROMPT);
+  } else if (customPrompt) {
+    groqForm.append('prompt', customPrompt);
+  }
 
   try {
     const groqRes = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
