@@ -17,6 +17,21 @@ input[type="date"], input[type="time"] {
   font-family: inherit;
 }
 
+/* iOS Safari hardening: make tap targets responsive and avoid double-tap zoom */
+button,
+[role="button"],
+input,
+textarea,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button {
+  cursor: pointer;
+}
+
 /* Hide native scrollbar for cleaner phone-like feel */
 .phone-scroll::-webkit-scrollbar { width: 0; }
-.phone-scroll { scrollbar-width: none; }
+.phone-scroll { scrollbar-width: none; -webkit-overflow-scrolling: touch; }

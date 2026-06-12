@@ -282,10 +282,9 @@ export default function App() {
         {toast && (
           <div className="absolute bottom-24 inset-x-4 z-50 animate-slide-up pointer-events-none">
             <div className={`pointer-events-none px-4 py-3 rounded-2xl shadow-xl flex items-center gap-2 ${
-              toast.kind === 'success' ? 'bg-emerald-600 text-white'
-              : toast.kind === 'warning' ? 'bg-amber-600 text-white'
-              : toast.kind === 'error' ? 'bg-rose-600 text-white'
-              : 'bg-slate-800 text-white'
+              toast.kind === 'success'
+                ? 'bg-emerald-600 text-white'
+                : 'bg-slate-800 text-white'
             }`}>
               {toast.kind === 'error' ? <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                : <CheckCircle2 className="w-5 h-5 flex-shrink-0" />}
