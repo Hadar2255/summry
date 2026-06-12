@@ -1,4 +1,6 @@
-const API_ENDPOINT = '/api/summarize';
+import { API_BASE } from './apiBase';
+
+const API_ENDPOINT = `${API_BASE}/api/summarize`;
 
 export async function summarizeMeeting(transcript, { signal } = {}) {
   if (!transcript || !transcript.trim()) throw new Error('התמלול ריק');

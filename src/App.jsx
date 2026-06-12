@@ -4,7 +4,7 @@ import {
   Settings as SettingsIcon, CheckCircle2, Calendar as CalendarIcon,
   CalendarDays, Mail, Shield, Lock, Zap,
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
-  Signal, Wifi, BatteryFull, CheckSquare, Square,
+  CheckSquare, Square,
   MessageSquare, UserPlus, X, Cpu, Loader2, AlertTriangle,
   Brain, ArrowRight, RefreshCw, Send, CalendarPlus, ExternalLink
 } from 'lucide-react';
@@ -95,35 +95,19 @@ function formatTimer(s) {
 }
 
 /* ============================================================ */
-/*                         PHONE FRAME                          */
+/*                          APP SHELL                           */
+/*  Full-screen on mobile / APK; centered column on desktop.    */
 /* ============================================================ */
 
-function PhoneFrame({ children }) {
+function AppShell({ children }) {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 flex items-center justify-center p-4 sm:p-8">
-      <div className="relative" style={{ width: 'min(100vw - 32px, 392px)' }}>
-        <div
-          className="relative bg-zinc-900 rounded-[3rem] p-[12px] shadow-[0_30px_60px_-20px_rgba(15,32,66,0.5)]"
-          style={{ height: 'min(96vh, 844px)' }}
-        >
-          <span className="absolute -right-[2px] top-28 h-12 w-[3px] bg-zinc-800 rounded-l-md" />
-          <span className="absolute -left-[2px] top-32 h-10 w-[3px] bg-zinc-800 rounded-r-md" />
-          <span className="absolute -left-[2px] top-48 h-16 w-[3px] bg-zinc-800 rounded-r-md" />
-          <div className="relative h-full w-full bg-slate-50 rounded-[2.3rem] overflow-hidden" dir="rtl">
-            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 z-50 w-32 h-7 bg-black rounded-full flex items-center justify-end pr-3">
-              <span className="w-2 h-2 rounded-full bg-zinc-700" />
-            </div>
-            <div className="relative z-10 h-11 px-7 flex items-center justify-between bg-transparent" dir="ltr">
-              <span className="text-[14px] font-semibold text-zinc-900 tracking-tight">9:41</span>
-              <span className="flex items-center gap-1.5 text-zinc-900">
-                <Signal className="w-3.5 h-3.5" />
-                <Wifi className="w-3.5 h-3.5" />
-                <BatteryFull className="w-5 h-5" />
-              </span>
-            </div>
-            {children}
-          </div>
-        </div>
+    <div className="h-[100dvh] w-full bg-slate-200 flex justify-center overflow-hidden">
+      <div
+        className="relative w-full sm:max-w-md h-full bg-slate-50 sm:shadow-[0_0_40px_rgba(15,32,66,0.18)] overflow-hidden"
+        dir="rtl"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
+        {children}
       </div>
     </div>
   );
@@ -241,8 +225,8 @@ export default function App() {
   }, []);
 
   return (
-    <PhoneFrame>
-      <div className="relative h-[calc(100%-44px)] flex flex-col bg-slate-50">
+    <AppShell>
+      <div className="relative h-full flex flex-col bg-slate-50">
         <div className="flex-1 overflow-y-auto phone-scroll pb-24">
           {activeTab === 'dashboard' && (
             <DashboardScreen
@@ -296,7 +280,7 @@ export default function App() {
 
         <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
-    </PhoneFrame>
+    </AppShell>
   );
 }
 
@@ -415,7 +399,7 @@ function DashboardScreen({ meetings, backendStatus, processing, runPipeline, ope
           <p className="text-[13px] font-bold text-[#0F2042] mb-1">עוד אין פגישות</p>
           <p className="text-[11px] text-slate-500 leading-relaxed">
             הקש על "התחל הקלטה" למעלה כדי להקליט את הפגישה הראשונה שלך.
-            <br />הכל נשמר באייפד שלך — אף אחד אחר לא רואה.
+            <br />הכל נשמר במכשיר שלך — אף אחד אחר לא רואה.
           </p>
         </div>
       ) : (
@@ -464,7 +448,7 @@ function RecordingCard({ isRecording, isStopping, duration, level, onToggle }) {
             {isRecording ? formatTimer(duration) : 'פגישה חדשה'}
           </p>
           <p className={`text-[11px] mt-0.5 ${isRecording ? 'text-rose-700/80' : 'text-blue-200/90'}`}>
-            {isRecording ? 'אודיו נשאר באייפד שלך בלבד' : 'הקלטה מקומית • תמלול במכשיר'}
+            {isRecording ? 'אודיו נשאר במכשיר שלך בלבד' : 'הקלטה מקומית • תמלול AI'}
           </p>
         </div>
 
@@ -1386,7 +1370,10 @@ function BottomNav({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <div className="absolute bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pb-7 pt-2 px-4" style={{ touchAction: 'manipulation' }}>
+    <div
+      className="absolute bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 pt-2 px-4"
+      style={{ touchAction: 'manipulation', paddingBottom: 'max(env(safe-area-inset-bottom), 0.5rem)' }}
+    >
       <div className="flex items-stretch justify-around gap-1">
         {tabs.map(tab => {
           const Icon = tab.icon;

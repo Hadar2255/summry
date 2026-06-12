@@ -1,4 +1,6 @@
-const API_ENDPOINT = '/api/transcribe';
+import { API_BASE } from './apiBase';
+
+const API_ENDPOINT = `${API_BASE}/api/transcribe`;
 
 export async function transcribeAudio(blob, { signal, language = 'he' } = {}) {
   if (!blob || !(blob instanceof Blob)) {

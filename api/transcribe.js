@@ -3,14 +3,25 @@ export const config = { runtime: 'edge' };
 const TRANSCRIBE_MODEL = 'whisper-large-v3';
 const HEBREW_PROMPT = 'תמלול פגישה עסקית בעברית. דוברים מנהלים, צוות פיתוח, לקוחות. נושאים: תקציב, פרויקטים, משימות, לוחות זמנים, החלטות.';
 
+/* CORS is open because the Android app calls this API from a local
+   WebView origin. The Groq key never leaves the server either way. */
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
+
 function json(body, init = {}) {
   return new Response(JSON.stringify(body), {
     ...init,
-    headers: { 'content-type': 'application/json', ...(init.headers || {}) }
+    headers: { 'content-type': 'application/json', ...CORS_HEADERS, ...(init.headers || {}) }
   });
 }
 
 export default async function handler(req) {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
   if (req.method !== 'POST') {
     return json({ error: 'POST only' }, { status: 405 });
   }
