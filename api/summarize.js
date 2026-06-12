@@ -31,15 +31,23 @@ const SYSTEM_PROMPT = `אתה עוזר AI לניתוח פגישות עסקיות
 - כל הטקסט בעברית בלבד.
 - JSON תקני בלבד, ללא טקסט נוסף לפני או אחרי.`;
 
+/* CORS is open because the Android app calls this API from a local
+   WebView origin. The Groq key never leaves the server either way. */
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
+
 function json(body, init = {}) {
   return new Response(JSON.stringify(body), {
     ...init,
-    headers: { 'Content-Type': 'application/json', ...(init.headers || {}) }
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS, ...(init.headers || {}) }
   });
 }
 
 export default async function handler(req) {
-  if (req.method === 'OPTIONS') return new Response(null, { status: 204 });
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS_HEADERS });
   if (req.method !== 'POST') return json({ error: 'POST only' }, { status: 405 });
 
   const apiKey = process.env.GROQ_API_KEY;
