@@ -6,7 +6,8 @@ import {
   ListChecks, Plus, Trash2, Save, ChevronRight, User,
   CheckSquare, Square,
   MessageSquare, UserPlus, X, Cpu, Loader2, AlertTriangle,
-  Brain, ArrowRight, RefreshCw, Send, CalendarPlus, ExternalLink
+  Brain, ArrowRight, RefreshCw, Send, CalendarPlus, ExternalLink,
+  BookOpen, Search, Pencil
 } from 'lucide-react';
 
 import { useRecorder } from './lib/recording';
@@ -41,6 +42,39 @@ const SPEAKER_COLORS = {
 };
 
 const COLOR_KEYS = ['indigo', 'emerald', 'amber', 'rose', 'sky'];
+
+const JOURNAL_MOODS = [
+  { value: 'happy',     emoji: '😊', label: 'שמח'    },
+  { value: 'focused',   emoji: '🤩', label: 'ממוקד'  },
+  { value: 'neutral',   emoji: '😐', label: 'רגיל'   },
+  { value: 'tired',     emoji: '😴', label: 'עייף'   },
+  { value: 'stressed',  emoji: '😣', label: 'לחוץ'   },
+  { value: 'sad',       emoji: '😔', label: 'עצוב'   }
+];
+
+const todayKey = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+function formatJournalDate(key) {
+  try {
+    const d = new Date(key + 'T00:00:00');
+    return new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+  } catch { return key; }
+}
+
+function formatJournalDayLabel(key) {
+  const today = todayKey();
+  if (key === today) return 'היום';
+  const y = new Date(today + 'T00:00:00'); y.setDate(y.getDate() - 1);
+  const yKey = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
+  if (key === yKey) return 'אתמול';
+  try {
+    return new Intl.DateTimeFormat('he-IL', { weekday: 'long', day: 'numeric', month: 'long' })
+      .format(new Date(key + 'T00:00:00'));
+  } catch { return key; }
+}
 
 const DEFAULT_SPEAKERS = [
   { id: 's_default', name: 'דובר', color: 'slate', trained: false }
@@ -123,6 +157,7 @@ export default function App() {
   const [selectedMeetingId, setSelectedId]  = useState(null);
   const [backendStatus, setBackendStatus]   = useState(null);
   const [speakers, setSpeakers]             = useState(DEFAULT_SPEAKERS);
+  const [journal, setJournal]               = useState([]);
   const [processing, setProcessing]         = useState(null);
   const [toast, setToast]                   = useState(null);
   const [loaded, setLoaded]                 = useState(false);
@@ -135,12 +170,14 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const [list, savedSpeakers] = await Promise.all([
+        const [list, savedSpeakers, savedJournal] = await Promise.all([
           listMeetings(),
-          getSetting('speakers')
+          getSetting('speakers'),
+          getSetting('journal')
         ]);
         setMeetings(list || []);
         if (Array.isArray(savedSpeakers) && savedSpeakers.length) setSpeakers(savedSpeakers);
+        if (Array.isArray(savedJournal)) setJournal(savedJournal);
       } catch (e) {
         console.error('Load failed', e);
       } finally {
@@ -158,6 +195,7 @@ export default function App() {
   }, []);
 
   useEffect(() => { if (loaded) setSetting('speakers', speakers); }, [speakers, loaded]);
+  useEffect(() => { if (loaded) setSetting('journal', journal); }, [journal, loaded]);
 
   const selectedMeeting = useMemo(
     () => meetings.find(m => m.id === selectedMeetingId) || null,
@@ -250,6 +288,13 @@ export default function App() {
           )}
           {activeTab === 'analysis' && !selectedMeeting && (
             <EmptyAnalysis goToDashboard={() => setActiveTab('dashboard')} />
+          )}
+          {activeTab === 'journal' && (
+            <JournalScreen
+              journal={journal}
+              setJournal={setJournal}
+              showToast={showToast}
+            />
           )}
           {activeTab === 'settings' && (
             <SettingsScreen
@@ -1358,14 +1403,345 @@ function VoiceProfileRow({ speaker, onDelete, onRename }) {
 }
 
 /* ============================================================ */
+/*                  SCREEN 4 — DAILY JOURNAL                    */
+/* ============================================================ */
+
+function JournalScreen({ journal, setJournal, showToast }) {
+  const today = todayKey();
+  const todayEntry = useMemo(
+    () => journal.find(e => e.date === today) || null,
+    [journal, today]
+  );
+
+  const [draftText, setDraftText] = useState(todayEntry?.text || '');
+  const [draftMood, setDraftMood] = useState(todayEntry?.mood || '');
+  const [query, setQuery]         = useState('');
+  const [editingId, setEditingId] = useState(null);
+
+  useEffect(() => {
+    setDraftText(todayEntry?.text || '');
+    setDraftMood(todayEntry?.mood || '');
+  }, [todayEntry?.id]);
+
+  const isDirty =
+    draftText !== (todayEntry?.text || '') ||
+    draftMood !== (todayEntry?.mood || '');
+
+  const saveToday = () => {
+    const text = draftText.trim();
+    if (!text && !draftMood) {
+      showToast('כתבי משהו או בחרי מצב רוח לפני שמירה', 'warning');
+      return;
+    }
+    const now = new Date().toISOString();
+    setJournal(prev => {
+      const others = prev.filter(e => e.date !== today);
+      const next = {
+        id: todayEntry?.id || `j_${Date.now()}`,
+        date: today,
+        mood: draftMood,
+        text,
+        updatedAt: now,
+        createdAt: todayEntry?.createdAt || now
+      };
+      return [next, ...others];
+    });
+    showToast('הרשומה נשמרה');
+  };
+
+  const updateEntry = (id, patch) => {
+    setJournal(prev => prev.map(e =>
+      e.id === id ? { ...e, ...patch, updatedAt: new Date().toISOString() } : e
+    ));
+  };
+
+  const deleteEntry = (id) => {
+    if (!confirm('למחוק את הרשומה? לא ניתן לשחזר.')) return;
+    setJournal(prev => prev.filter(e => e.id !== id));
+    if (editingId === id) setEditingId(null);
+    showToast('הרשומה נמחקה');
+  };
+
+  const pastEntries = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return journal
+      .filter(e => e.date !== today)
+      .filter(e => !q || (e.text || '').toLowerCase().includes(q))
+      .sort((a, b) => (a.date < b.date ? 1 : -1));
+  }, [journal, today, query]);
+
+  const totalEntries = journal.length;
+  const streak = useMemo(() => calcStreak(journal), [journal]);
+
+  return (
+    <div className="px-5 pt-1">
+      <header className="flex items-center justify-between py-3 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 flex items-center justify-center shadow-md shadow-indigo-700/25">
+            <BookOpen className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-[17px] font-extrabold text-[#0F2042] leading-tight">היומן שלי</h1>
+            <p className="text-[11px] text-slate-500 leading-tight">מחשבות, רגעים, רעיונות</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <Stat label="רשומות סה״כ" value={String(totalEntries)} tone="default" />
+        <Stat label="רצף ימים" value={streak ? `${streak} 🔥` : '0'} tone={streak ? 'emerald' : 'default'} />
+      </div>
+
+      <div className="bg-gradient-to-br from-indigo-50 via-white to-violet-50 border-2 border-indigo-200 rounded-3xl p-4 mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+            <Pencil className="w-4 h-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold text-indigo-700 uppercase tracking-wide">הרשומה של היום</p>
+            <p className="text-[13px] font-extrabold text-[#0F2042]">{formatJournalDate(today)}</p>
+          </div>
+          {todayEntry && (
+            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+              <CheckCircle2 className="w-2.5 h-2.5" />
+              נכתב
+            </span>
+          )}
+        </div>
+
+        <MoodPicker value={draftMood} onChange={setDraftMood} />
+
+        <textarea
+          value={draftText}
+          onChange={(e) => setDraftText(e.target.value)}
+          rows={5}
+          dir="rtl"
+          placeholder="איך היה היום? מה למדת? מה עוד נשאר לעשות..."
+          className="w-full mt-3 bg-white border border-indigo-100 rounded-2xl p-3 text-[13.5px] text-slate-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300 placeholder:text-slate-400"
+        />
+
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-[10px] text-slate-500">
+            {draftText.length} תווים
+            {isDirty && <span className="text-amber-600 font-semibold"> • לא נשמר</span>}
+          </span>
+          <button
+            onClick={saveToday}
+            disabled={!isDirty}
+            className={`flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-xl transition-colors ${
+              isDirty
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'bg-slate-100 text-slate-400'
+            }`}
+          >
+            <Save className="w-3.5 h-3.5" />
+            שמור
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between mb-2.5">
+        <h2 className="text-sm font-extrabold text-[#0F2042]">רשומות קודמות</h2>
+        {pastEntries.length > 0 && (
+          <span className="text-[11px] font-semibold text-slate-500">{pastEntries.length}</span>
+        )}
+      </div>
+
+      {journal.filter(e => e.date !== today).length > 0 && (
+        <div className="relative mb-3">
+          <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="חיפוש ברשומות..."
+            className="w-full bg-white border border-slate-200 rounded-2xl pr-9 pl-3 py-2.5 text-[13px] text-[#0F2042] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          />
+        </div>
+      )}
+
+      {pastEntries.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-6 text-center">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 mx-auto mb-2.5 flex items-center justify-center">
+            <BookOpen className="w-6 h-6 text-indigo-600" />
+          </div>
+          <p className="text-[13px] font-bold text-[#0F2042] mb-1">
+            {query ? 'אין תוצאות' : 'עוד אין רשומות קודמות'}
+          </p>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            {query
+              ? 'נסי מילה אחרת או נקי את החיפוש.'
+              : 'כתבי את הרשומה הראשונה שלך למעלה. כל רשומה נשמרת אצלך במכשיר בלבד.'}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2 pb-2">
+          {pastEntries.map(entry => (
+            <JournalEntryCard
+              key={entry.id}
+              entry={entry}
+              isEditing={editingId === entry.id}
+              onStartEdit={() => setEditingId(entry.id)}
+              onCancelEdit={() => setEditingId(null)}
+              onSave={(patch) => { updateEntry(entry.id, patch); setEditingId(null); showToast('הרשומה עודכנה'); }}
+              onDelete={() => deleteEntry(entry.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MoodPicker({ value, onChange }) {
+  return (
+    <div className="flex items-center gap-1.5 flex-wrap">
+      {JOURNAL_MOODS.map(m => {
+        const active = value === m.value;
+        return (
+          <button
+            key={m.value}
+            type="button"
+            onClick={() => onChange(active ? '' : m.value)}
+            aria-label={m.label}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-bold transition-all ${
+              active
+                ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/25 scale-105'
+                : 'bg-white border border-slate-200 text-slate-600 hover:border-indigo-300'
+            }`}
+          >
+            <span className="text-base leading-none">{m.emoji}</span>
+            <span>{m.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function JournalEntryCard({ entry, isEditing, onStartEdit, onCancelEdit, onSave, onDelete }) {
+  const [text, setText] = useState(entry.text || '');
+  const [mood, setMood] = useState(entry.mood || '');
+
+  useEffect(() => {
+    if (isEditing) {
+      setText(entry.text || '');
+      setMood(entry.mood || '');
+    }
+  }, [isEditing, entry.id]);
+
+  const moodInfo = JOURNAL_MOODS.find(m => m.value === entry.mood);
+
+  if (isEditing) {
+    return (
+      <div className="bg-white rounded-2xl border-2 border-indigo-300 p-3 shadow-md shadow-indigo-100">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-[11px] font-bold text-indigo-700">{formatJournalDayLabel(entry.date)} • {formatJournalDate(entry.date)}</p>
+          <button onClick={onCancelEdit} aria-label="בטל" className="text-slate-400 hover:text-slate-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <MoodPicker value={mood} onChange={setMood} />
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={4}
+          dir="rtl"
+          className="w-full mt-2 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-[13px] text-slate-700 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-indigo-300"
+        />
+        <div className="flex items-center justify-end gap-2 mt-2">
+          <button
+            onClick={onCancelEdit}
+            className="text-xs font-bold text-slate-500 px-3 py-1.5 rounded-lg hover:bg-slate-100"
+          >
+            ביטול
+          </button>
+          <button
+            onClick={() => onSave({ text: text.trim(), mood })}
+            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+          >
+            <Save className="w-3.5 h-3.5" />
+            שמור
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200 p-3.5 hover:border-indigo-200 transition-colors">
+      <div className="flex items-center gap-2 mb-1.5">
+        <span className="text-[11px] font-bold text-[#0F2042]">{formatJournalDayLabel(entry.date)}</span>
+        <span className="text-slate-300">•</span>
+        <span className="text-[10.5px] text-slate-500">{formatJournalDate(entry.date)}</span>
+        {moodInfo && (
+          <span className="mr-auto bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span className="text-sm leading-none">{moodInfo.emoji}</span>
+            {moodInfo.label}
+          </span>
+        )}
+      </div>
+      {entry.text && (
+        <p className="text-[13px] text-slate-700 leading-relaxed whitespace-pre-wrap mb-2">{entry.text}</p>
+      )}
+      <div className="flex items-center justify-end gap-1 pt-1.5 border-t border-slate-100">
+        <button
+          onClick={onStartEdit}
+          aria-label="ערוך"
+          className="flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50 transition-colors"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+          ערוך
+        </button>
+        <button
+          onClick={onDelete}
+          aria-label="מחק"
+          className="flex items-center gap-1 text-[11px] font-bold text-slate-400 hover:text-rose-600 px-2 py-1 rounded-lg hover:bg-rose-50 transition-colors"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          מחק
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function calcStreak(journal) {
+  if (!journal.length) return 0;
+  const dates = new Set(journal.map(e => e.date));
+  let count = 0;
+  const d = new Date();
+  while (true) {
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    if (dates.has(key)) {
+      count += 1;
+      d.setDate(d.getDate() - 1);
+    } else {
+      if (count === 0) {
+        d.setDate(d.getDate() - 1);
+        const yKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        if (dates.has(yKey)) {
+          count = 1;
+          d.setDate(d.getDate() - 1);
+          continue;
+        }
+      }
+      break;
+    }
+  }
+  return count;
+}
+
+/* ============================================================ */
 /*                      BOTTOM NAVIGATION                       */
 /* ============================================================ */
 
 function BottomNav({ activeTab, setActiveTab }) {
   const tabs = [
-    { id: 'dashboard', label: 'מרכז הפגישות', icon: Home },
-    { id: 'analysis',  label: 'ניתוח פגישה',  icon: FileText },
-    { id: 'settings',  label: 'הגדרות',       icon: SettingsIcon }
+    { id: 'dashboard', label: 'פגישות',   icon: Home },
+    { id: 'analysis',  label: 'ניתוח',    icon: FileText },
+    { id: 'journal',   label: 'יומן',     icon: BookOpen },
+    { id: 'settings',  label: 'הגדרות',   icon: SettingsIcon }
   ];
 
   return (
