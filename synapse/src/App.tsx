@@ -102,7 +102,7 @@ export default function App() {
 
   if (!ready) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen min-h-[100dvh] items-center justify-center">
         <div className="animate-breathe">
           <Logo compact />
         </div>
@@ -113,17 +113,17 @@ export default function App() {
   const Current = VIEWS[view];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen min-h-[100dvh] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
       <Sidebar dueCount={dueCount} onCapture={() => setPaletteOpen(true)} />
 
       <div className="min-w-0 flex-1">
-        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-canvas/85 px-4 py-3 backdrop-blur md:hidden">
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-canvas/85 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur md:hidden">
           <Logo />
-          <button onClick={() => setPaletteOpen(true)} className="rounded-lg border border-line p-2 text-muted" aria-label="Quick capture">
+          <button onClick={() => setPaletteOpen(true)} className="flex h-11 w-11 items-center justify-center rounded-xl border border-line text-muted" aria-label="Quick capture">
             <Command size={16} />
           </button>
         </div>
-        <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:px-6 md:px-10 md:pb-16 md:pt-12">
+        <main className="mx-auto w-full max-w-6xl px-4 pb-28 pt-8 sm:px-6 md:px-8 md:pb-16 md:pt-[max(2.5rem,calc(env(safe-area-inset-top)+1.5rem))] lg:px-10">
           <Current key={view} />
         </main>
       </div>

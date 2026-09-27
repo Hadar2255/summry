@@ -220,7 +220,7 @@ export function CommandPalette({ open, onClose, onNewTopic }: { open: boolean; o
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder="Search, jump, or capture a card as “Question :: Answer”"
-            className="h-14 flex-1 bg-transparent text-[15.5px] text-ink placeholder:text-faint focus:outline-none"
+            className="h-14 min-w-0 flex-1 bg-transparent text-[15.5px] text-ink placeholder:text-faint focus:outline-none"
             aria-label="Command or capture"
           />
           <Kbd>Esc</Kbd>
@@ -280,7 +280,7 @@ export function CommandPalette({ open, onClose, onNewTopic }: { open: boolean; o
           </div>
         )}
 
-        <div className="flex items-center gap-4 border-t border-line px-5 py-2.5 text-[11.5px] text-faint">
+        <div className="kbd-hint flex items-center gap-4 border-t border-line px-5 py-2.5 text-[11.5px] text-faint">
           <span className="flex items-center gap-1.5">
             <Kbd>↑</Kbd>
             <Kbd>↓</Kbd> navigate

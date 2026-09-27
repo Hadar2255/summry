@@ -68,7 +68,7 @@ export function FocusSession({ open, onExit, title, subtitle, progress, countdow
       <div className="grain pointer-events-none absolute inset-0 opacity-60" />
       <div className="pointer-events-none absolute left-1/2 top-[-20vh] h-[60vh] w-[60vh] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl animate-breathe" />
 
-      <header className="relative z-10 flex items-center justify-between gap-4 px-5 py-4 md:px-8">
+      <header className="relative z-10 flex items-center justify-between gap-4 pb-4 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-[max(1rem,env(safe-area-inset-top))] md:pl-[max(2rem,env(safe-area-inset-left))] md:pr-[max(2rem,env(safe-area-inset-right))]">
         <div className="min-w-0">
           <p className="eyebrow">Focus session</p>
           <h2 className="display truncate text-lg md:text-xl">{title}</h2>
@@ -94,7 +94,7 @@ export function FocusSession({ open, onExit, title, subtitle, progress, countdow
           )}
           <button
             onClick={() => dispatch({ type: 'settings/update', patch: { audioCues: !audioCues } })}
-            className={`rounded-lg p-2 transition hover:bg-raised ${audioCues ? 'text-ink' : 'text-faint'}`}
+            className={`rounded-lg p-2.5 transition hover:bg-raised ${audioCues ? 'text-ink' : 'text-faint'}`}
             title={audioCues ? 'Audio cues on' : 'Audio cues off'}
             aria-pressed={audioCues}
           >
@@ -102,7 +102,7 @@ export function FocusSession({ open, onExit, title, subtitle, progress, countdow
           </button>
           <button
             onClick={() => dispatch({ type: 'settings/update', patch: { ambientSound: !ambientSound } })}
-            className={`rounded-lg p-2 transition hover:bg-raised ${ambientSound ? 'text-accent' : 'text-faint'}`}
+            className={`rounded-lg p-2.5 transition hover:bg-raised ${ambientSound ? 'text-accent' : 'text-faint'}`}
             title={ambientSound ? 'Ambient sound on' : 'Ambient sound off'}
             aria-pressed={ambientSound}
           >
@@ -110,7 +110,8 @@ export function FocusSession({ open, onExit, title, subtitle, progress, countdow
           </button>
           <button
             onClick={onExit}
-            className="ml-1 flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-muted transition hover:bg-raised hover:text-ink"
+            className="ml-1 flex min-h-[44px] items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition hover:bg-raised hover:text-ink"
+            aria-label="Exit focus session"
           >
             <Kbd>Esc</Kbd>
             <X size={17} />
@@ -125,7 +126,7 @@ export function FocusSession({ open, onExit, title, subtitle, progress, countdow
         />
       </div>
 
-      <main className="relative z-10 flex-1 overflow-y-auto px-5 py-8 md:px-8">
+      <main className="relative z-10 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-8 md:px-8">
         <div className="mx-auto w-full max-w-3xl">{children}</div>
       </main>
     </div>,

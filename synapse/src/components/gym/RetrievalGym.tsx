@@ -228,7 +228,7 @@ export function RetrievalGym() {
             />
             <div className="mt-4 flex items-center justify-between text-[12.5px] text-muted">
               <span className="font-mono">{dump.trim() ? dump.trim().split(/\s+/).length : 0} words</span>
-              <Button variant="primary" onClick={submit} trailing={<span className="ml-1 font-mono text-[11px] opacity-70">{modKeyLabel}↵</span>}>
+              <Button variant="primary" onClick={submit} trailing={<span className="kbd-hint ml-1 font-mono text-[11px] opacity-70">{modKeyLabel}↵</span>}>
                 I’m done — reveal
               </Button>
             </div>

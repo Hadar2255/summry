@@ -3,6 +3,8 @@ const token = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 
 export default {
   darkMode: 'class',
+  // Hover styles only on devices that can hover, so taps on iPad don't leave elements stuck in a hover state.
+  future: { hoverOnlyWhenSupported: true },
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {

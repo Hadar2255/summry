@@ -121,8 +121,9 @@ export function TopicDetail({ topic }: { topic: Topic }) {
                       <Button size="icon" variant="ghost" aria-label="Card actions" onClick={() => setMenuFor(menuFor === c.id ? null : c.id)}>
                         <MoreHorizontal size={16} />
                       </Button>
+                      {menuFor === c.id && <div className="fixed inset-0 z-10" onClick={() => setMenuFor(null)} aria-hidden />}
                       {menuFor === c.id && (
-                        <div className="card absolute right-0 top-10 z-20 w-44 p-1.5 shadow-xl animate-fade-in" onMouseLeave={() => setMenuFor(null)}>
+                        <div className="card absolute right-0 top-11 z-20 w-48 p-1.5 shadow-xl animate-fade-in">
                           {[
                             {
                               label: c.suspended ? 'Unsuspend' : 'Suspend',
@@ -138,7 +139,7 @@ export function TopicDetail({ topic }: { topic: Topic }) {
                                 a.run();
                                 setMenuFor(null);
                               }}
-                              className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] transition hover:bg-raised ${a.label === 'Delete' ? 'text-bad' : ''}`}
+                              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[14px] transition hover:bg-raised ${a.label === 'Delete' ? 'text-bad' : ''}`}
                             >
                               <a.icon size={14} /> {a.label}
                             </button>

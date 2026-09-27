@@ -162,10 +162,10 @@ export function SynthesisBridge() {
 
               <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
                 <Button variant="secondary" icon={<Save size={15} />} disabled={!response.trim()} onClick={() => save(false)}>
-                  Save <span className="ml-1 font-mono text-[11px] text-faint">{modKeyLabel}↵</span>
+                  Save <span className="kbd-hint ml-1 font-mono text-[11px] text-faint">{modKeyLabel}↵</span>
                 </Button>
                 <Button variant="primary" icon={<Layers size={15} />} disabled={!response.trim()} onClick={() => save(true)}>
-                  Save as card <span className="ml-1 font-mono text-[11px] opacity-70">⇧{modKeyLabel}↵</span>
+                  Save as card <span className="kbd-hint ml-1 font-mono text-[11px] opacity-70">⇧{modKeyLabel}↵</span>
                 </Button>
               </div>
             </div>
@@ -185,7 +185,7 @@ export function SynthesisBridge() {
                     {relativeDay(s.createdAt)}
                     <button
                       onClick={() => dispatch({ type: 'synthesis/delete', id: s.id })}
-                      className="opacity-0 transition hover:text-bad group-hover:opacity-100"
+                      className="touch-visible -m-2 p-2 opacity-0 transition hover:text-bad group-hover:opacity-100"
                       aria-label="Delete bridge"
                     >
                       <Trash2 size={13} />

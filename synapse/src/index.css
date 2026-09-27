@@ -45,6 +45,46 @@
     @apply bg-canvas text-ink font-sans;
     font-feature-settings: 'ss01', 'cv11';
     min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+
+  button,
+  a,
+  [role='button'],
+  [role='option'],
+  input,
+  select,
+  textarea {
+    touch-action: manipulation;
+  }
+
+  /* Touch-first devices (iPad without a keyboard, phones). */
+  @media (hover: none) and (pointer: coarse) {
+    /* Safari zooms into fields with text smaller than 16px. */
+    input:not([type='range']):not([type='file']),
+    select,
+    .input,
+    .textarea {
+      font-size: 16px !important;
+    }
+    /* Keyboard hints are noise without a keyboard. */
+    kbd,
+    .kbd-hint {
+      display: none !important;
+    }
+    .touch-visible {
+      opacity: 1 !important;
+    }
+  }
+
+  /* Long-press on a control shouldn't start a text selection. */
+  button,
+  [role='option'] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   .theme-transition,

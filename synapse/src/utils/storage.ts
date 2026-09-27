@@ -190,6 +190,26 @@ export function exportPayload(state: AppState): string {
   return JSON.stringify({ app: 'synapse', exportedAt: new Date().toISOString(), data: state }, null, 2);
 }
 
+/**
+ * Saves a backup. On iPad/iPhone (especially when installed to the home screen) the share sheet is the
+ * reliable way to reach Files, AirDrop or iCloud Drive, so it's preferred when the browser supports sharing files.
+ */
+export async function saveBackup(filename: string, contents: string): Promise<'shared' | 'downloaded' | 'cancelled'> {
+  const file = new File([contents], filename, { type: 'application/json' });
+  const touch = typeof window !== 'undefined' && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (touch && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: 'Synapse backup' });
+      return 'shared';
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return 'cancelled';
+      // Fall through to a regular download.
+    }
+  }
+  downloadJson(filename, contents);
+  return 'downloaded';
+}
+
 export function downloadJson(filename: string, contents: string) {
   const blob = new Blob([contents], { type: 'application/json' });
   const url = URL.createObjectURL(blob);

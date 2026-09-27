@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Download, Upload, RotateCcw, Trash2, Monitor, Sun, Moon, Volume2, Waves, Shuffle, Database } from 'lucide-react';
 import type { Settings, ThemePreference } from '../../types';
 import { useStore } from '../../hooks/useStore';
-import { downloadJson, exportPayload, ImportError, normalizeState } from '../../utils/storage';
+import { exportPayload, ImportError, normalizeState, saveBackup } from '../../utils/storage';
 import { dayKey, formatClock } from '../../utils/date';
 import { PageHeader } from '../ui/PageHeader';
 import { Button } from '../ui/Button';
@@ -142,7 +142,12 @@ export function SettingsPanel() {
               {state.syntheses.length} bridges
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
-              <Button variant="primary" icon={<Download size={15} />} onClick={() => downloadJson(`synapse-backup-${dayKey(new Date())}.json`, exportPayload(state))}>
+              <Button variant="primary" icon={<Download size={15} />} onClick={() =>
+                  void saveBackup(`synapse-backup-${dayKey(new Date())}.json`, exportPayload(state)).then((r) => {
+                    if (r === 'shared') toast('Backup exported');
+                  })
+                }
+              >
                 Export JSON
               </Button>
               <Button variant="secondary" icon={<Upload size={15} />} onClick={() => fileRef.current?.click()}>
@@ -151,7 +156,7 @@ export function SettingsPanel() {
               <input
                 ref={fileRef}
                 type="file"
-                accept="application/json,.json"
+                accept="application/json,.json,public.json"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];

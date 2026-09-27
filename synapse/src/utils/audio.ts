@@ -20,6 +20,20 @@ class AudioEngine {
     return this.ctx;
   }
 
+  /**
+   * iOS/iPadOS only allows audio once a context has been resumed inside a user gesture.
+   * Called on the first tap/keypress so later cues (timers, ambient noise) can play.
+   */
+  unlock() {
+    const ctx = this.context();
+    if (!ctx) return;
+    const buffer = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.connect(ctx.destination);
+    src.start(0);
+  }
+
   private tone(freq: number, at: number, dur: number, peak = 0.08, type: OscillatorType = 'sine') {
     const ctx = this.context();
     if (!ctx) return;

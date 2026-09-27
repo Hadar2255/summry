@@ -50,7 +50,7 @@ export function CardEditor({
       subtitle="Write the prompt as a question that forces retrieval — not recognition."
       footer={
         <>
-          <span className="mr-auto hidden items-center gap-1.5 text-xs text-faint sm:flex">
+          <span className="kbd-hint mr-auto hidden items-center gap-1.5 text-xs text-faint sm:flex">
             <Kbd>{modKeyLabel}</Kbd>
             <Kbd>↵</Kbd> save
           </span>

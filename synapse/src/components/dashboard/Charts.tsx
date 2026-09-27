@@ -9,7 +9,7 @@ export function ForecastBars({ data }: { data: Array<{ date: Date; count: number
         const label = i === 0 ? 'Today' : d.date.toLocaleDateString(undefined, { weekday: 'short' });
         return (
           <div key={i} className="group flex flex-1 flex-col items-center gap-2">
-            <span className="font-mono text-[11px] tabular-nums text-muted opacity-0 transition group-hover:opacity-100">{d.count}</span>
+            <span className="font-mono text-[11px] tabular-nums text-muted opacity-0 transition group-hover:opacity-100 [@media(hover:none)]:opacity-100">{d.count}</span>
             <div
               className={`w-full rounded-md transition-all duration-500 ${i === 0 ? 'bg-accent' : 'bg-accent/25 group-hover:bg-accent/45'}`}
               style={{ height: `${h}px` }}

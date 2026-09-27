@@ -29,23 +29,33 @@ export function Sidebar({ dueCount, onCapture }: { dueCount: number; onCapture: 
   const theme = state.settings.theme;
   const ThemeIcon = THEME_ICON[theme];
 
+  // md–lg (iPad portrait): 76px icon rail. lg+ (iPad landscape, desktop): full sidebar.
   return (
-    <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col border-r border-line bg-surface/60 px-4 py-5 backdrop-blur md:flex">
-      <div className="px-2">
-        <Logo />
+    <aside className="sticky top-0 hidden h-screen h-[100dvh] w-[76px] shrink-0 flex-col items-center border-r border-line bg-surface/60 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))] backdrop-blur md:flex lg:w-[248px] lg:items-stretch lg:px-4">
+      <div className="lg:px-2">
+        <span className="lg:hidden">
+          <Logo compact />
+        </span>
+        <span className="hidden lg:block">
+          <Logo />
+        </span>
       </div>
 
       <button
         onClick={onCapture}
-        className="mt-6 flex items-center gap-2.5 rounded-xl border border-line bg-canvas/60 px-3 py-2 text-left text-sm text-muted transition hover:border-faint hover:text-ink"
+        title="Capture or jump"
+        aria-label="Capture or jump"
+        className="mt-6 flex h-11 w-11 items-center justify-center gap-2.5 rounded-xl border border-line bg-canvas/60 text-left text-sm text-muted transition hover:border-faint hover:text-ink lg:h-auto lg:w-auto lg:justify-start lg:px-3 lg:py-2"
       >
-        <Command size={15} />
-        <span className="flex-1 truncate">Capture / jump</span>
-        <Kbd>{modKeyLabel}</Kbd>
-        <Kbd>K</Kbd>
+        <Command size={16} />
+        <span className="hidden flex-1 truncate lg:inline">Capture / jump</span>
+        <span className="hidden items-center gap-1 lg:flex">
+          <Kbd>{modKeyLabel}</Kbd>
+          <Kbd>K</Kbd>
+        </span>
       </button>
 
-      <nav className="mt-6 flex flex-1 flex-col gap-0.5">
+      <nav className="mt-6 flex w-full flex-1 flex-col items-center gap-1 overflow-y-auto lg:items-stretch lg:gap-0.5">
         {NAV_ITEMS.map((item) => {
           const active = view === item.view;
           const Icon = item.icon;
@@ -53,48 +63,57 @@ export function Sidebar({ dueCount, onCapture }: { dueCount: number; onCapture: 
             <button
               key={item.view}
               onClick={() => navigate(item.view)}
-              className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition ${
+              title={item.label}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+              className={`group relative flex h-12 w-12 items-center justify-center gap-3 rounded-xl text-left text-[14px] transition lg:h-auto lg:w-auto lg:justify-start lg:px-3 lg:py-2.5 ${
                 active ? 'bg-raised text-ink' : 'text-muted hover:bg-raised/60 hover:text-ink'
               }`}
             >
-              {active && <span className="absolute left-0 top-2.5 h-5 w-[3px] rounded-r-full bg-accent" />}
-              <Icon size={17} strokeWidth={active ? 2.2 : 1.8} className={active ? 'text-accent' : ''} />
-              <span className="flex-1">
+              {active && <span className="absolute -left-3 top-3 h-6 w-[3px] rounded-r-full bg-accent lg:left-0 lg:top-2.5 lg:h-5" />}
+              <Icon size={19} strokeWidth={active ? 2.2 : 1.8} className={`shrink-0 lg:h-[17px] lg:w-[17px] ${active ? 'text-accent' : ''}`} />
+              <span className="hidden flex-1 lg:block">
                 <span className="block font-medium leading-tight">{item.label}</span>
                 {item.principle && <span className="block text-[11px] text-faint">{item.principle}</span>}
               </span>
               {item.view === 'review' && dueCount > 0 && (
-                <span className="rounded-full bg-accent px-2 py-0.5 font-mono text-[11px] font-semibold text-accent-ink">{dueCount}</span>
+                <>
+                  <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full border-2 border-surface bg-accent lg:hidden" />
+                  <span className="hidden rounded-full bg-accent px-2 py-0.5 font-mono text-[11px] font-semibold text-accent-ink lg:inline">{dueCount}</span>
+                </>
               )}
-              <span className="hidden font-mono text-[10px] text-faint group-hover:inline">g {item.chord}</span>
+              <span className="kbd-hint hidden font-mono text-[10px] text-faint lg:group-hover:inline">g {item.chord}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="mt-4 flex items-center justify-between border-t border-line px-1 pt-4">
-        <span className="flex items-center gap-1.5 text-[11.5px] text-faint" title={storageBackend === 'local' ? 'Saved to localStorage' : 'Saved to IndexedDB'}>
+      <div className="mt-4 flex w-full flex-col items-center gap-2 border-t border-line pt-4 lg:flex-row lg:justify-between lg:px-1">
+        <span
+          className="flex items-center gap-1.5 text-[11.5px] text-faint"
+          title={saveStatus === 'error' ? 'Save failed' : storageBackend === 'local' ? 'Saved to localStorage' : 'Saved on this device'}
+        >
           {saveStatus === 'saving' ? (
-            <Loader2 size={13} className="animate-spin" />
+            <Loader2 size={14} className="animate-spin" />
           ) : saveStatus === 'error' ? (
-            <CloudOff size={13} className="text-bad" />
+            <CloudOff size={14} className="text-bad" />
           ) : (
-            <Cloud size={13} />
+            <Cloud size={14} />
           )}
-          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Save failed' : 'Saved locally'}
+          <span className="hidden lg:inline">{saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Save failed' : 'Saved locally'}</span>
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-col items-center gap-1 lg:flex-row">
           <button
             onClick={() => dispatch({ type: 'settings/update', patch: { theme: THEME_CYCLE[(THEME_CYCLE.indexOf(theme) + 1) % 3] } })}
-            className="rounded-lg p-2 text-muted transition hover:bg-raised hover:text-ink"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-muted transition hover:bg-raised hover:text-ink lg:h-9 lg:w-9"
             title={`Theme: ${theme}`}
-            aria-label={`Theme: ${theme}. Click to change.`}
+            aria-label={`Theme: ${theme}. Tap to change.`}
           >
             <ThemeIcon size={16} />
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('synapse:shortcuts'))}
-            className="rounded-lg px-2 py-1.5 font-mono text-xs text-muted transition hover:bg-raised hover:text-ink"
+            className="kbd-hint flex h-9 w-9 items-center justify-center rounded-lg font-mono text-xs text-muted transition hover:bg-raised hover:text-ink"
             title="Keyboard shortcuts"
           >
             ?
@@ -108,7 +127,7 @@ export function Sidebar({ dueCount, onCapture }: { dueCount: number; onCapture: 
 export function MobileNav({ dueCount }: { dueCount: number }) {
   const { view, navigate } = useNav();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-surface/90 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-line bg-surface/90 px-[max(0.25rem,env(safe-area-inset-left))] pb-[env(safe-area-inset-bottom)] backdrop-blur-lg md:hidden">
       {NAV_ITEMS.filter((i) => i.view !== 'settings').map((item) => {
         const Icon = item.icon;
         const active = view === item.view;

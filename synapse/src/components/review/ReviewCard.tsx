@@ -122,7 +122,10 @@ export function ReviewCard({
         {relearn && <span className="rounded-full bg-bad/10 px-2 py-0.5 text-[11px] font-medium text-bad">relearning</span>}
       </div>
 
-      <div className="card relative overflow-hidden px-6 py-10 text-center shadow-xl shadow-black/5 md:px-12 md:py-14">
+      <div
+        className={`card relative overflow-hidden px-6 py-10 text-center shadow-xl shadow-black/5 md:px-12 md:py-14 ${phase === 'answer' ? 'cursor-pointer' : ''}`}
+        onClick={phase === 'answer' ? reveal : undefined}
+      >
         <p className="display mx-auto max-w-2xl text-[26px] leading-snug md:text-[32px]">{card.prompt}</p>
 
         {phase === 'revealed' && (
@@ -153,7 +156,7 @@ export function ReviewCard({
                 <button
                   key={c}
                   onClick={() => chooseConfidence(c)}
-                  className={`flex items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 text-left text-[14px] transition ${CONF_STYLE[c]}`}
+                  className={`flex min-h-[60px] items-center justify-between rounded-xl border border-line bg-surface px-4 py-3 text-left text-[14px] transition active:scale-[0.98] ${CONF_STYLE[c]}`}
                 >
                   <span>
                     <span className="block font-medium">{CONFIDENCE_LABEL[c]}</span>
@@ -178,12 +181,14 @@ export function ReviewCard({
             <div className="mt-4 flex flex-col items-center gap-2">
               <button
                 onClick={reveal}
-                className="inline-flex h-12 items-center gap-3 rounded-xl bg-ink px-8 text-[15px] font-medium text-canvas transition hover:opacity-90"
+                className="inline-flex h-14 items-center gap-3 rounded-xl bg-ink px-10 text-[15px] font-medium text-canvas transition hover:opacity-90"
               >
                 Reveal answer <Kbd className="!border-transparent !bg-canvas/20 !text-canvas">Space</Kbd>
               </button>
               <span className="text-[12px] text-faint">
-                Confidence: {confidence && CONFIDENCE_LABEL[confidence]} · while typing use {modKeyLabel}+↵
+                Confidence: {confidence && CONFIDENCE_LABEL[confidence]}
+                <span className="kbd-hint"> · while typing use {modKeyLabel}+↵</span>
+                <span className="hidden [@media(hover:none)]:inline"> · or tap the card</span>
               </span>
             </div>
           </div>
@@ -196,7 +201,7 @@ export function ReviewCard({
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {([1, 2, 3, 4] as Grade[]).map((g) => (
-                <button key={g} onClick={() => grade(g)} className={`rounded-xl border bg-surface px-4 py-3 text-left transition ${GRADE_STYLE[g]}`}>
+                <button key={g} onClick={() => grade(g)} className={`rounded-xl border bg-surface px-4 py-3.5 text-left transition active:scale-[0.98] ${GRADE_STYLE[g]}`}>
                   <span className="flex items-center justify-between">
                     <span className="font-medium">{GRADE_LABEL[g]}</span>
                     <Kbd>{g}</Kbd>

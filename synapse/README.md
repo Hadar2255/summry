@@ -12,6 +12,20 @@ npm run build      # typecheck + production build to dist/
 
 On first launch Synapse loads three sample subjects: **Occam's Razor** (Philosophy), **Backpressure** (Systems Architecture) and **Neuroplasticity** (Physiology). It also generates about 9 days of made-up review history, so every dashboard metric has data. Settings → *Erase everything* removes it all.
 
+## On iPad
+
+Synapse installs as a full-screen iPad app (a Progressive Web App):
+
+1. Host the built `dist/` folder anywhere with HTTPS (for example Vercel or Netlify with the root directory set to `synapse`, build command `npm run build`, output `dist`).
+2. Open the URL in **Safari** on the iPad → **Share** → **Add to Home Screen**.
+3. Launch it from the home-screen icon: it runs full screen, works offline after the first visit, and keeps your data on the iPad.
+
+iPad-specific behaviour:
+- **Portrait** shows a compact icon rail so the content gets the width; **landscape** shows the full sidebar. iPad mini portrait uses a bottom tab bar.
+- Everything works by touch: tap a confidence level, tap the card (or the button) to reveal, tap a grade. Keyboard hints are hidden unless a keyboard or trackpad is attached; with a Magic Keyboard every shortcut works (`⌘K`, `Space`, `1–4`, `Esc`).
+- Text fields are 16px so Safari doesn't zoom in; safe areas around the camera and home indicator are respected.
+- Sound starts after your first tap (an iOS rule). **Export JSON** opens the share sheet so you can save the backup to Files, iCloud Drive or AirDrop it.
+
 ## Modules
 
 | Module | Principle | What it does |
