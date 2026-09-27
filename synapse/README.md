@@ -16,7 +16,10 @@ On first launch Synapse loads three sample subjects: **Occam's Razor** (Philosop
 
 Synapse installs as a full-screen iPad app (a Progressive Web App):
 
-1. Host the built `dist/` folder anywhere with HTTPS (for example Vercel or Netlify with the root directory set to `synapse`, build command `npm run build`, output `dist`).
+1. Deploy to Vercel (config is in `synapse/vercel.json`):
+   - vercel.com → **Add New… → Project** → import this GitHub repo.
+   - Set **Root Directory** to `synapse` (leave the other build settings on their defaults — `vercel.json` supplies them).
+   - Deploy. Every push to the production branch redeploys; other branches get preview URLs.
 2. Open the URL in **Safari** on the iPad → **Share** → **Add to Home Screen**.
 3. Launch it from the home-screen icon: it runs full screen, works offline after the first visit, and keeps your data on the iPad.
 
