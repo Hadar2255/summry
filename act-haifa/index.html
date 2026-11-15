@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ACT חיפה | מתקן אימוני כוח</title>
-<meta name="description" content="ACT חיפה: חדר כושר מקצועי לאימוני כוח. מאמנים שעלו לבמה בעצמם, ציוד תחרות אמיתי ותוכנית אישית. אבא הלל סילבר 71, חיפה.">
+<title>ACT חיפה | חדר כושר מקצועי</title>
+<meta name="description" content="ACT חיפה: חדר כושר מקצועי עם קהילה. ליווי אישי של מאמנים, ציוד ברמת תחרות ותוכנית לפי המטרה שלך. אבא הלל סילבר 71, חיפה.">
 <meta name="theme-color" content="#141618">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23141618'/%3E%3Crect x='6' y='29' width='52' height='6' rx='2' fill='%23ece9e2'/%3E%3Crect x='12' y='16' width='9' height='32' rx='3' fill='%23d3262d'/%3E%3Crect x='43' y='16' width='9' height='32' rx='3' fill='%23d3262d'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23141618'/%3E%3Crect x='6' y='29' width='52' height='6' rx='2' fill='%23ece9e2'/%3E%3Crect x='12' y='16' width='9' height='32' rx='3' fill='%23f26522'/%3E%3Crect x='43' y='16' width='9' height='32' rx='3' fill='%23f26522'/%3E%3C/svg%3E">
 <!-- DEPLOY STEP: patch og:url and og:image with the live absolute URL before zipping -->
-<meta property="og:title" content="ACT חיפה | מתקן אימוני כוח">
-<meta property="og:description" content="כאן מתאמנים כמו לפני תחרות. מאמני כוח, ציוד תחרות ותוכנית אישית.">
+<meta property="og:title" content="ACT חיפה | חדר כושר מקצועי">
+<meta property="og:description" content="חדר כושר מקצועי עם קהילה. ליווי אישי, ציוד ברמת תחרות ותוכנית לפי המטרה שלך.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://example.com/">
 <meta property="og:image" content="https://example.com/assets/hero-ending.jpg">
@@ -19,9 +19,9 @@
 <style>
 :root{
   --canvas:#141618;--panel:#1d2023;--panel-2:#24282c;
-  --accent:#d3262d;--accent-hover:#e8383f;--accent-muted:#d3262d33;
+  --accent:#f26522;--accent-hover:#ff7a38;--accent-muted:#f2652233;
   --text-primary:#ece9e2;--text-secondary:#a7a49d;--line:#3a3f44;--line-strong:#6b7178;
-  --p25:#d3262d;--p20:#2f6fd6;--p15:#e7b923;--p10:#2f9e57;
+  --p25:#f26522;--p20:#f26522;--p15:#f26522;--p10:#f26522;
   --display:'Karantina',system-ui,sans-serif;--body:'Assistant',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
   --ease-out:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.65,0,.35,1);
   --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
@@ -33,14 +33,14 @@ body{margin:0;overflow-x:hidden;overflow-x:clip;background:var(--canvas);color:v
 img{max-width:100%;display:block}
 a{color:inherit}
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.skip{position:fixed;inset-inline-start:16px;top:-60px;z-index:100;background:var(--accent);color:#fff;padding:10px 16px;border-radius:8px;text-decoration:none;transition:top .3s var(--ease-out)}
+.skip{position:fixed;inset-inline-start:16px;top:-60px;z-index:100;background:var(--accent);color:#141618;padding:10px 16px;border-radius:8px;text-decoration:none;transition:top .3s var(--ease-out)}
 .skip:focus{top:12px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
 main:focus{outline:none}
 
 /* the one environment: fixed background layer */
 .env{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:var(--canvas)}
-.env::before{content:"";position:absolute;inset:-20%;background:radial-gradient(40% 35% at 50% 30%,#2a2f3433,transparent 70%),radial-gradient(30% 30% at 20% 80%,#d3262d0d,transparent 70%);animation:envdrift 70s var(--ease-io) -12s infinite alternate}
+.env::before{content:"";position:absolute;inset:-20%;background:radial-gradient(40% 35% at 50% 30%,#2a2f3433,transparent 70%),radial-gradient(30% 30% at 20% 80%,#f265220d,transparent 70%);animation:envdrift 70s var(--ease-io) -12s infinite alternate}
 .env::after{content:"";position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 @keyframes envdrift{to{transform:translate3d(4%,6%,0) scale(1.08)}}
 .dust{position:absolute;width:3px;height:3px;border-radius:50%;background:#ece9e2;opacity:0;animation:dust 22s linear infinite}
@@ -57,7 +57,7 @@ main:focus{outline:none}
 @media (max-width:860px){.nav ul{display:none}}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 22px;border-radius:10px;border:1px solid transparent;font:600 18px/1.2 var(--body);text-decoration:none;cursor:pointer;transition:background .35s var(--ease-out),transform .35s var(--ease-out),border-color .35s var(--ease-out),color .35s var(--ease-out)}
-.btn-accent{background:var(--accent);color:#fff}
+.btn-accent{background:var(--accent);color:#141618}
 .btn-accent:hover{background:var(--accent-hover);transform:translateY(-2px)}
 .btn-ghost{border-color:var(--line-strong);color:var(--text-primary);background:#14161866}
 .btn-ghost:hover{border-color:var(--text-primary)}
@@ -164,7 +164,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(48px,6vw,92px);lin
 .liftbox .readout{font:500 15px/1 var(--mono);color:var(--text-secondary);margin:18px 0 20px;letter-spacing:.12em}
 .liftbox .readout b{font-size:44px;color:var(--text-primary);font-weight:500;display:inline-block;min-width:3.4ch}
 .hold{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;min-width:240px}
-.hold .fill{position:absolute;inset:0;background:var(--accent-hover);transform-origin:right;transform:scaleX(var(--hp,0))}
+.hold .fill{position:absolute;inset:0;background:#ffffff40;transform-origin:right;transform:scaleX(var(--hp,0))}
 .hold span{position:relative}
 .lift-done{margin-top:18px;color:var(--text-secondary);opacity:0;transform:translateY(8px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
 .liftbox.done .lift-done{opacity:1;transform:none;color:var(--text-primary)}
@@ -174,7 +174,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(48px,6vw,92px);lin
 /* proof */
 .proof{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px}
 .stat{border-top:2px solid var(--line);padding-top:20px}
-.stat b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(56px,6vw,88px);line-height:1}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(48px,4.8vw,76px);line-height:1}
 .stat span{color:var(--text-secondary);font-size:17px}
 .stat.red{border-color:var(--p25)}
 @media (max-width:900px){.proof{grid-template-columns:1fr 1fr}}
@@ -208,7 +208,7 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(48px,6vw,92px);lin
 @media (max-width:900px){.visit{grid-template-columns:1fr}}
 
 /* cta */
-.cta{background:radial-gradient(60% 80% at 50% 0%,#d3262d14,transparent 70%)}
+.cta{background:radial-gradient(60% 80% at 50% 0%,#f2652214,transparent 70%)}
 .cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
 form{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px;display:grid;gap:16px}
 label{display:grid;gap:6px;font-weight:600}
@@ -242,7 +242,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 <nav class="nav" aria-label="ראשי">
   <a class="brand" href="#top" aria-label="ACT חיפה, לראש העמוד">
-    <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="29" width="56" height="6" rx="2" fill="#ece9e2"/><rect x="11" y="15" width="9" height="34" rx="3" fill="#d3262d"/><rect x="44" y="15" width="9" height="34" rx="3" fill="#d3262d"/></svg>
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="29" width="56" height="6" rx="2" fill="#ece9e2"/><rect x="11" y="15" width="9" height="34" rx="3" fill="#f26522"/><rect x="44" y="15" width="9" height="34" rx="3" fill="#f26522"/></svg>
     ACT
   </a>
   <ul>
@@ -251,7 +251,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <li><a href="#faq">שאלות</a></li>
     <li><a href="#visit">שעות וכתובת</a></li>
   </ul>
-  <a class="btn btn-accent" href="#cta">תאם אימון היכרות</a>
+  <a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a>
 </nav>
 
 <div class="kg" aria-hidden="true">KG <b id="kgv">0</b></div>
@@ -267,25 +267,25 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <div class="scrim" aria-hidden="true"></div>
 
     <div class="band pos-r1 e-drift" data-a="0" data-b="0.22" style="--sa:.7">
-      <p class="kicker"><i></i>מתקן אימוני כוח · חיפה</p>
-      <h1 class="h-hero split">ACT חיפה.</h1>
-      <p class="sub-hero">כאן מתאמנים כמו לפני תחרות.</p>
+      <p class="kicker"><i></i>חדר כושר · חיפה</p>
+      <h1 class="h-hero split">ACT חיפה</h1>
+      <p class="sub-hero">חדר כושר מקצועי עם קהילה אמיתית.</p>
     </div>
 
     <div class="band pos-bl e-scatter" data-a="0.26" data-b="0.50" data-spread="0.5" style="--sa:.66">
-      <p class="h-hero split" style="font-size:clamp(48px,5.6vw,96px)">מאמנים שעלו לבמה בעצמם.</p>
-      <p class="sub-hero sub-fade">הם יודעים מה הם עושים, ורואים את זה מהאימון הראשון.</p>
+      <p class="h-hero split" style="font-size:clamp(48px,5.6vw,96px)">מאמנים שמכירים אותך בשם.</p>
+      <p class="sub-hero sub-fade">כל מתאמן מקבל תוכנית, ליווי ותיקון טכניקה על הרצפה.</p>
     </div>
 
     <div class="band pos-top e-punch" data-a="0.54" data-b="0.76" style="--sa:.68">
-      <p class="h-hero split" data-em="200,250,180" style="font-size:clamp(44px,4.6vw,84px)">200 סקוואט. 250 דדליפט. 180 חזה.</p>
-      <p class="sub-hero sub-fade">אלה המספרים שמרימים אצלנו.</p>
+      <p class="h-hero split" style="font-size:clamp(44px,4.6vw,84px)">מתחילים או מתחרים.</p>
+      <p class="sub-hero sub-fade">אותו יחס מקצועי לכולם. חלק מהמתאמנים שלנו מתחרים בתחרויות בינלאומיות.</p>
     </div>
 
     <div class="band settle e-rise" data-a="0.80" data-b="1" style="--sa:.62">
-      <p class="h-hero split">המשקל מחכה לך.</p>
-      <p class="sub-hero stage-sub">תאם אימון היכרות ותצא עם תוכנית.</p>
-      <div class="row stage-btn"><a class="btn btn-accent" href="#cta">תאם אימון היכרות</a><a class="btn btn-ghost" href="tel:+97248220242">04-822-0242</a></div>
+      <p class="h-hero split">בוא לאימון ניסיון.</p>
+      <p class="sub-hero stage-sub">נכיר, נבדוק איפה אתה עומד ונבנה לך תוכנית.</p>
+      <div class="row stage-btn"><a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a><a class="btn btn-ghost" href="tel:+97248220242">04-822-0242</a></div>
     </div>
 
     <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true"><circle class="track" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/></svg>
@@ -296,10 +296,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <!-- static hero (phones, reduced motion) -->
 <section class="hero-static" aria-label="פתיחה">
   <div>
-    <p class="kicker"><i></i>מתקן אימוני כוח · חיפה</p>
-    <h1 class="h-hero">ACT חיפה. כאן מתאמנים כמו לפני תחרות.</h1>
-    <p class="sub-hero">מאמני כוח שעלו לבמה בעצמם, ציוד תחרות אמיתי ותוכנית שבנויה בשבילך.</p>
-    <div class="row"><a class="btn btn-accent" href="#cta">תאם אימון היכרות</a></div>
+    <p class="kicker"><i></i>חדר כושר · חיפה</p>
+    <h1 class="h-hero">ACT חיפה. חדר כושר מקצועי עם קהילה אמיתית.</h1>
+    <p class="sub-hero">ליווי אישי של מאמנים, ציוד ברמת תחרות ותוכנית לפי המטרה שלך.</p>
+    <div class="row"><a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a></div>
   </div>
 </section>
 
@@ -308,22 +308,22 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="s" id="why">
   <div class="wrap rv">
     <p class="label it"><i style="background:var(--p20)"></i>למה ACT</p>
-    <h2 class="it">חדר כושר רציני. בלי סיבובים.</h2>
-    <p class="lede it">רוב חדרי הכושר בנויים למי שבא לזוז קצת. ACT בנוי למי שבא להתקדם.</p>
+    <h2 class="it">מה מקבלים ב-ACT.</h2>
+    <p class="lede it">ליווי של מאמנים מקצועיים, ציוד ברמת תחרות ואנשים שבאים להתאמן ביחד.</p>
   </div>
   <div class="wrap why rv">
-    <article class="card it" style="--pc:var(--p20)"><div class="plate" aria-hidden="true">20</div><h3>מאמנים, לא מדריכים.</h3><p>הבעלים מאמן על הרצפה בעצמו. כל תרגיל נבדק, כל משקל מתוכנן.</p></article>
-    <article class="card it" style="--pc:var(--p15)"><div class="plate" aria-hidden="true">15</div><h3>ציוד של תחרות.</h3><p>מתקני סקוואט, פלטפורמות לדדליפט, מוטות ופלטות תחרות. בלי לחכות בתור למכונה.</p></article>
-    <article class="card it" style="--pc:var(--p10)"><div class="plate" aria-hidden="true">10</div><h3>תוכנית שלך.</h3><p>מתחיל או מתחרה, מקבלים תוכנית אישית לפי המטרה ולפי נקודת ההתחלה.</p></article>
+    <article class="card it" style="--pc:var(--p20)"><div class="plate" aria-hidden="true">01</div><h3>ליווי אישי.</h3><p>תוכנית לפי המטרה שלך, ומאמן על הרצפה שמתקן טכניקה ומעדכן את התוכנית כשאתה מתקדם.</p></article>
+    <article class="card it" style="--pc:var(--p15)"><div class="plate" aria-hidden="true">02</div><h3>ציוד ברמת תחרות.</h3><p>מתקני סקוואט, פלטפורמות לדדליפט, מוטות ופלטות תחרות. לא מחכים בתור.</p></article>
+    <article class="card it" style="--pc:var(--p10)"><div class="plate" aria-hidden="true">03</div><h3>קהילה.</h3><p>מתאמנים שמכירים אחד את השני ודוחפים אחד את השני קדימה. זה מה שגורם לך לחזור.</p></article>
   </div>
 </section>
 
 <section class="s" id="lift" aria-labelledby="lift-h">
   <div class="wrap lift">
     <div class="rv">
-      <p class="label it"><i style="background:var(--p25)"></i>נסה בעצמך</p>
-      <h2 class="it" id="lift-h">תרים.</h2>
-      <p class="lede it">לחץ על הכפתור והחזק. כל רגע שאתה מחזיק מוסיף פלטה למוט.</p>
+      <p class="label it"><i style="background:var(--p25)"></i>איך מתקדמים</p>
+      <h2 class="it" id="lift-h">פלטה אחרי פלטה.</h2>
+      <p class="lede it">ככה בונים כוח אצלנו: בשלבים, עם תוכנית ומאמן שעוקב. החזק את הכפתור וראה את המוט מתמלא.</p>
     </div>
     <div class="liftbox" id="liftbox">
       <svg viewBox="0 0 600 200" aria-hidden="true">
@@ -332,8 +332,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
         <g id="plates"></g>
       </svg>
       <p class="readout"><b id="liftkg">20</b> KG</p>
-      <button class="btn btn-accent hold" id="hold" type="button" aria-describedby="liftkg"><span class="fill" aria-hidden="true"></span><span id="holdtx">החזק כדי להרים</span></button>
-      <p class="lift-done" id="liftdone">ככה נראה דדליפט של 250. אצלנו מגיעים לזה בשלבים.</p>
+      <button class="btn btn-accent hold" id="hold" type="button" aria-describedby="liftkg"><span class="fill" aria-hidden="true"></span><span id="holdtx">החזק כדי להעמיס</span></button>
+      <p class="lift-done" id="liftdone">250 ק"ג. לשם מגיעים בשלבים, לא ביום אחד.</p>
     </div>
   </div>
 </section>
@@ -341,7 +341,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="s" id="proof">
   <div class="wrap rv">
     <p class="label it"><i style="background:var(--p15)"></i>הוכחות</p>
-    <h2 class="it">המספרים מדברים.</h2>
+    <h2 class="it">התוצאות של המתאמנים.</h2>
   </div>
   <div class="wrap proof rv">
     <div class="stat red it"><b dir="ltr">200+</b><span>ק"ג בסקוואט</span></div>
@@ -360,7 +360,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   </div>
   <div class="wrap steps rv">
     <article class="step it"><div class="ph" style="background-image:url('assets/step-1.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">01</span><h3>מתקשרים.</h3><p>שיחה קצרה, תשובה ישירה על מחיר ושעות. בלי פגישת מכירה.</p></div></article>
-    <article class="step it"><div class="ph" style="background-image:url('assets/step-2.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">02</span><h3>אימון היכרות.</h3><p>מאמן בודק איפה אתה עומד: טכניקה, כוח, מטרה.</p></div></article>
+    <article class="step it"><div class="ph" style="background-image:url('assets/step-2.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">02</span><h3>אימון ניסיון.</h3><p>מאמן בודק איפה אתה עומד: טכניקה, כוח, מטרה.</p></div></article>
     <article class="step it"><div class="ph" style="background-image:url('assets/step-3.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">03</span><h3>תוכנית ביד.</h3><p>יוצאים עם תוכנית אישית ומתחילים להתקדם כבר מהשבוע הראשון.</p></div></article>
   </div>
 </section>
@@ -368,10 +368,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="s" id="faq">
   <div class="wrap rv">
     <p class="label it"><i style="background:var(--p20)"></i>שאלות</p>
-    <h2 class="it">מה שאנשים שואלים לפני שהם באים.</h2>
+    <h2 class="it">שאלות נפוצות.</h2>
     <div class="faq it">
       <details><summary>אני מתחיל. זה בכלל בשבילי?</summary><p>כן. מאמנים מתחרים יודעים גם ללמד מאפס, ובונים את הבסיס נכון מההתחלה.</p></details>
-      <details><summary>חייבים להתחרות?</summary><p>לא. מתאמנים כמו מתחרים, אבל המטרה שלך היא המטרה.</p></details>
+      <details><summary>אני לא מכיר שם אף אחד.</summary><p>רוב המתאמנים הגיעו לבד. אחרי כמה אימונים כבר מכירים את כולם.</p></details>
+      <details><summary>חייבים להתחרות?</summary><p>לא. רוב המתאמנים באים להתחזק ולהרגיש טוב. מי שרוצה להתחרות מקבל הכנה מלאה.</p></details>
       <details><summary>צפוף בערב?</summary><p>בשעות השיא יש יותר אנשים. בבוקר ובצהריים יש הרבה מקום, ונשמח להמליץ על שעות.</p></details>
       <details><summary>כמה זה עולה?</summary><p>נגיד לך בטלפון, ישר ובלי סיבובים.</p></details>
     </div>
@@ -398,7 +399,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   <div class="wrap cta-grid">
     <div class="rv">
       <p class="label it"><i style="background:var(--p25)"></i>אימון היכרות</p>
-      <h2 class="it" id="cta-h">המשקל מחכה לך.</h2>
+      <h2 class="it" id="cta-h">בוא לאימון ניסיון.</h2>
       <p class="lede it">השאר פרטים ונחזור אליך, או פשוט תתקשר.</p>
       <p class="it" style="margin-top:28px"><a class="btn btn-ghost" href="tel:+97248220242">התקשר: 04-822-0242</a></p>
     </div>
@@ -408,7 +409,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <label>מה המטרה?
         <select name="goal"><option>להתחזק</option><option>להתחיל מאפס</option><option>להתכונן לתחרות</option><option>לבנות מסת שריר</option></select>
       </label>
-      <button class="btn btn-accent" type="submit">תאם אימון היכרות</button>
+      <button class="btn btn-accent" type="submit">קבע אימון ניסיון</button>
       <div class="ok" role="status" aria-live="polite">קיבלנו. נחזור אליך עוד היום.</div>
     </form>
   </div>
@@ -417,7 +418,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 <footer>
   <div class="wrap">
-    <span>ACT · מתקן אימוני כוח · אבא הלל סילבר 71, חיפה</span>
+    <span>ACT · חדר כושר · אבא הלל סילבר 71, חיפה</span>
     <span><a href="tel:+97248220242">04-822-0242</a> · <a href="https://www.instagram.com/act.training" target="_blank" rel="noopener">אינסטגרם</a></span>
   </div>
 </footer>
@@ -648,9 +649,9 @@ document.addEventListener('visibilitychange', () => document.body.classList.togg
 
 /* the lift: press and hold */
 const PLATES = [ // per side, inside out: 25,25,20,20,15,10 -> 20 bar + 2*(115) = 250
-  { kg: 25, c: '#d3262d', h: 150, w: 22 }, { kg: 25, c: '#d3262d', h: 150, w: 22 },
-  { kg: 20, c: '#2f6fd6', h: 150, w: 20 }, { kg: 20, c: '#2f6fd6', h: 150, w: 20 },
-  { kg: 15, c: '#e7b923', h: 130, w: 18 }, { kg: 10, c: '#2f9e57', h: 112, w: 16 }
+  { kg: 25, c: '#f26522', h: 150, w: 22 }, { kg: 25, c: '#f26522', h: 150, w: 22 },
+  { kg: 20, c: '#d9581c', h: 150, w: 20 }, { kg: 20, c: '#d9581c', h: 150, w: 20 },
+  { kg: 15, c: '#3a3f44', h: 130, w: 18 }, { kg: 10, c: '#2a2e32', h: 112, w: 16 }
 ];
 const g = $('#plates'), liftkg = $('#liftkg'), box = $('#liftbox'), holdBtn = $('#hold'), holdtx = $('#holdtx');
 const plateEls = [];
@@ -692,7 +693,7 @@ function holdTick(now){
   if (holding) hp = Math.min(1, hp + dt / 2600);
   else hp = Math.max(0, hp - dt / 1600 * (0.4 + hp));
   renderLift();
-  if (hp >= 1 && !liftDone) { liftDone = true; holding = false; box.classList.add('done'); holdtx.textContent = 'הרמת 250. כל הכבוד.'; }
+  if (hp >= 1 && !liftDone) { liftDone = true; holding = false; box.classList.add('done'); holdtx.textContent = '250 ק"ג על המוט'; }
   if ((holding && hp < 1) || (!holding && hp > 0 && !liftDone)) holdRaf = requestAnimationFrame(holdTick);
   else { holdRaf = null; holdLast = 0; }
 }
@@ -702,7 +703,7 @@ holdBtn.addEventListener('pointerdown', startHold);
 ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => holdBtn.addEventListener(ev, endHold));
 holdBtn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) startHold(e); });
 holdBtn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') endHold(); });
-function finishLift(){ hp = 1; liftDone = true; box.classList.add('done'); holdtx.textContent = 'הרמת 250. כל הכבוד.'; renderLift(); }
+function finishLift(){ hp = 1; liftDone = true; box.classList.add('done'); holdtx.textContent = '250 ק"ג על המוט'; renderLift(); }
 
 /* reduced motion: pin and unpin */
 let pinned = false;
@@ -716,7 +717,7 @@ function unpinFinalStates(){
   if (!pinned) return; pinned = false; linesPinned = false;
   lastDraw.clear(); drawLines();
   if (box.dataset.pinned) {
-    delete box.dataset.pinned; liftDone = false; hp = 0; lastOn = -1; box.classList.remove('done'); holdtx.textContent = 'החזק כדי להרים'; renderLift();
+    delete box.dataset.pinned; liftDone = false; hp = 0; lastOn = -1; box.classList.remove('done'); holdtx.textContent = 'החזק כדי להעמיס'; renderLift();
   }
 }
 reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else applyHeroMode(); });
