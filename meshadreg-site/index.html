@@ -213,7 +213,7 @@ h2 em{font-style:normal;color:var(--accent)}
 @media (max-width:900px){.sites{grid-template-columns:1fr}}
 
 /* process */
-.steps{list-style:none;padding:0;margin:56px 0 0;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.steps{list-style:none;padding:0;margin:56px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
 .steps li{position:relative;padding:26px 24px 28px;border-radius:20px;background:linear-gradient(180deg,var(--panel),transparent);border:1px solid var(--line)}
 .steps .dot{width:46px;height:46px;margin-bottom:18px}
 .steps .dot circle{fill:none;stroke-width:3.5;stroke-linecap:round}
@@ -222,6 +222,35 @@ h2 em{font-style:normal;color:var(--accent)}
 .steps .dot text{fill:var(--text-primary);font:500 15px var(--mono)}
 .steps h3{font:700 28px/1.1 var(--display);margin:0 0 8px}
 .steps p{margin:0;color:var(--text-secondary);font-size:16px}
+.steps{grid-template-columns:repeat(5,1fr)}
+.steps h3{font-size:25px}
+@media (max-width:1180px){.steps{grid-template-columns:repeat(3,1fr)}}
+.deal{margin-top:72px;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:56px;align-items:center;padding:48px;border-radius:28px;background:radial-gradient(120% 120% at 85% 0%,var(--raised),var(--panel) 60%);border:1px solid var(--line-strong)}
+.split{position:relative;max-width:340px;width:100%;margin-inline:auto;aspect-ratio:1}
+.split svg{width:100%;height:100%;transform:rotate(-90deg)}
+.split circle{fill:none;stroke-width:16}
+.split .t{stroke:var(--line)}
+.split .h1,.split .h2{stroke-dasharray:0 1;stroke-linecap:butt;transition:stroke-dasharray 1.4s var(--ease-out) .3s}
+.split .h1{stroke:var(--accent)}
+.split .h2{stroke:var(--paper);stroke-dashoffset:-.5}
+.deal.in .split .h1,.deal.in .split .h2{stroke-dasharray:.49 .51}
+.splitnum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px;font:900 clamp(48px,6vw,84px)/1 var(--display)}
+.splitnum b:first-child{color:var(--accent)}
+.splitnum span{color:var(--text-secondary);font-weight:400}
+.dealtxt h3{font:700 clamp(32px,3.4vw,48px)/1.08 var(--display);margin:0 0 22px}
+.terms{list-style:none;padding:0;margin:0 0 28px;display:grid;gap:12px}
+.terms li{display:flex;gap:16px;align-items:baseline;font-size:17px;color:var(--text-secondary)}
+.terms b{flex:0 0 74px;font:500 20px var(--mono);color:var(--accent);text-align:start}
+.calc{background:#0d0a2a80;border:1px solid var(--line);border-radius:18px;padding:22px 24px}
+.calc-h{margin:0 0 12px;font:500 12px var(--mono);letter-spacing:.12em;color:var(--text-secondary)}
+.calc label{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin-bottom:14px;font-size:15px;color:var(--text-secondary)}
+.calc output{font:500 16px var(--mono);color:var(--text-primary)}
+.calc input{grid-column:1/-1;width:100%;accent-color:var(--accent);height:28px;cursor:pointer}
+.calc-r{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:14px}
+.calc-r b{font:900 clamp(34px,3.6vw,48px)/1 var(--display);color:var(--accent)}
+.calc-n{margin:10px 0 0;font-size:13px;color:var(--text-secondary);opacity:.8}
+@media (max-width:900px){.deal{grid-template-columns:1fr;padding:28px 22px;gap:32px}.split{max-width:220px}}
+@media (prefers-reduced-motion: reduce){.split .h1,.split .h2{transition:none}}
 @media (max-width:980px){.steps{grid-template-columns:1fr 1fr}}
 @media (max-width:560px){.steps{grid-template-columns:1fr}}
 
@@ -415,15 +444,38 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 <section class="s" id="process">
   <div class="wrap rv">
     <p class="label it"><i></i>איך זה עובד</p>
-    <h2 class="it">ארבעה שלבים. אתה מאשר כל אחד.</h2>
-    <p class="lede it">שום דבר לא יוצא לפני שראית ואמרת כן.</p>
+    <h2 class="it">אנחנו בונים. אתה <em>לא מסכן כלום</em>.</h2>
+    <p class="lede it">כל מוצר נבנה על המותג שלך. אנחנו משקיעים את העבודה, ומרוויחים רק כשהמוצר מוכר.</p>
   </div>
   <ol class="wrap steps rv">
-    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:.25"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">1</text></svg><h3>שיחת היכרות</h3><p>מכירים אותך, את הקהל ואת מה שהוא כבר שואל אותך.</p></li>
-    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:.5"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">2</text></svg><h3>מחקר ותוכן</h3><p>מקורות אמיתיים, בדיקת עובדות וכתיבה בעברית, בקול שלך.</p></li>
-    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:.75"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">3</text></svg><h3>סקיצה לאישור</h3><p>רואים כיוון לפני שמפיקים. אתה מתקן, אנחנו מעדכנים.</p></li>
-    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:1"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">4</text></svg><h3>הפקה מלאה</h3><p>חוברת, אתר ורילס מוכנים להשקה, רק אחרי האישור שלך.</p></li>
+    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:0.2"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">1</text></svg><h3>שיחת היכרות</h3><p>מכירים אותך, את הקהל ואת מה שהוא כבר שואל אותך.</p></li>
+    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:0.4"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">2</text></svg><h3>לומדים את המותג</h3><p>השפה שלך, הצבעים, הסגנון והקהל. כל מה שנבנה יוצא מהם.</p></li>
+    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:0.6"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">3</text></svg><h3>מחקר ותוכן</h3><p>מקורות אמיתיים, בדיקת עובדות וכתיבה בעברית, בקול שלך.</p></li>
+    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:0.8"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">4</text></svg><h3>סקיצה לאישור</h3><p>רואים כיוון לפני שמפיקים. אתה מתקן, אנחנו מעדכנים.</p></li>
+    <li class="it"><svg class="dot" viewBox="0 0 46 46" aria-hidden="true" style="--f:1.0"><circle class="t" cx="23" cy="23" r="19"/><circle class="v" cx="23" cy="23" r="19" pathLength="1"/><text x="23" y="28" text-anchor="middle">5</text></svg><h3>השקה ומכירה</h3><p>המוצר עולה לאוויר. כל מכירה מתחלקת חצי חצי.</p></li>
   </ol>
+  <div class="wrap deal rv" id="deal">
+    <div class="split it" aria-hidden="true">
+      <svg viewBox="0 0 200 200"><circle class="t" cx="100" cy="100" r="80"/><circle class="h1" cx="100" cy="100" r="80" pathLength="1"/><circle class="h2" cx="100" cy="100" r="80" pathLength="1"/></svg>
+      <div class="splitnum" dir="ltr"><b>50</b><span>/</span><b>50</b></div>
+    </div>
+    <div class="dealtxt">
+      <p class="label it"><i></i>המודל</p>
+      <h3 class="it">חצי חצי. בלי תשלום מראש.</h3>
+      <ul class="terms it">
+        <li><b dir="ltr">0 ₪</b><span>אתה לא משלם על המחקר, הכתיבה, העיצוב או האתר.</span></li>
+        <li><b dir="ltr">50%</b><span>מכל מכירה נכנס אליך. 50% אלינו.</span></li>
+        <li><b dir="ltr">0 ₪</b><span>הפסד אם המוצר לא מוכר. הסיכון עלינו.</span></li>
+      </ul>
+      <div class="calc it">
+        <p class="calc-h">דוגמה לחישוב</p>
+        <label><span>מחיר החוברת</span><output id="cPriceO" dir="ltr">₪79</output><input type="range" id="cPrice" min="29" max="299" step="10" value="79" aria-label="מחיר החוברת"></label>
+        <label><span>מספר קונים</span><output id="cBuyO" dir="ltr">200</output><input type="range" id="cBuy" min="10" max="2000" step="10" value="200" aria-label="מספר קונים"></label>
+        <div class="calc-r"><span>החלק שלך</span><b id="cYou" dir="ltr">₪7,900</b></div>
+        <p class="calc-n">המספרים לדוגמה בלבד. ההכנסה תלויה במחיר ובמכירות בפועל.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section class="s" id="faq">
@@ -435,7 +487,8 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
       <details><summary>צריך להבין בטכנולוגיה?</summary><p>לא. אתה מדבר איתנו על הקהל ועל הידע שלך. את הכתיבה, העיצוב, האתר והאוטומציות אנחנו עושים.</p></details>
       <details><summary>אתם משתמשים ב-AI. זה לא יהיה גנרי?</summary><p>ה-AI עוזר לנו לעבוד מהר. התוכן נשען על מחקר ומקורות אמיתיים, ועובר בדיקה ועריכה לפני שהוא מגיע אליך.</p></details>
       <details><summary>מה אם לא אהבתי את הסקיצה?</summary><p>בגלל זה יש סקיצה. אומרים מה לשנות, ואנחנו מעדכנים לפני שממשיכים להפקה.</p></details>
-      <details><summary>כמה זה עולה?</summary><p>תלוי במה שבונים: חוברת לבד, או חוברת עם אתר מכירה, רילס ואוטומציות. שלח הודעה ותקבל הצעה מסודרת.</p></details>
+      <details><summary>כמה זה עולה?</summary><p>כלום מראש. אנחנו משקיעים את העבודה, וכל מכירה של המוצר מתחלקת חצי חצי בינך לבינינו. אם הוא לא מוכר, לא הפסדת שקל.</p></details>
+      <details><summary>למה שתעבדו בלי תשלום מראש?</summary><p>כי אנחנו מאמינים במוצר שאנחנו בונים. אנחנו מרוויחים רק כשאתה מרוויח, אז יש לנו כל סיבה לבנות משהו שהקהל שלך באמת יקנה.</p></details>
     </div>
   </div>
 </section>
@@ -445,7 +498,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
     <div class="halo" aria-hidden="true"></div>
     <p class="label it" style="justify-content:center"><i></i>מתחילים</p>
     <h2 class="it" id="cta-h">המוצר הראשון שלך מתחיל בהודעה.</h2>
-    <p class="lede it">ספר לנו על הקהל שלך ועל מה שהוא שואל אותך. נחזור עם רעיון למוצר.</p>
+    <p class="lede it">ספר לנו על הקהל שלך ועל מה שהוא שואל אותך. נחזור עם רעיון למוצר. בלי תשלום מראש.</p>
     <div class="row it"><a class="btn btn-accent" href="https://ig.me/m/nadavlavi.ai" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>שלח הודעה באינסטגרם</a></div>
   </div>
 </section>
@@ -680,6 +733,11 @@ let sx = null;
 bookEl.addEventListener('pointerdown', e => { sx = e.clientX; });
 bookEl.addEventListener('pointerup', e => { if (sx === null) return; const dx = e.clientX - sx; sx = null; if (Math.abs(dx) < 30) go(1); else go(dx > 0 ? 1 : -1); });
 loadBook('food');
+
+/* deal calculator */
+const cP = $('#cPrice'), cB = $('#cBuy'), fmt = n => '₪' + Math.round(n).toLocaleString('en-US');
+function calc(){ $('#cPriceO').textContent = fmt(+cP.value); $('#cBuyO').textContent = (+cB.value).toLocaleString('en-US'); $('#cYou').textContent = fmt(cP.value * cB.value / 2); }
+cP.addEventListener('input', calc); cB.addEventListener('input', calc); calc();
 
 /* reduced motion */
 let pinned = false;
