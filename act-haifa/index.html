@@ -475,7 +475,7 @@ $$('.band .split').forEach((el, bi) => {
 const hero = $('#hero'), stage = $('#stage'), video = $('#vid'), ring = $('#ring'), posterLayer = $('#poster'), cue = $('#cue');
 const bands = $$('.band').map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, ramp: el.dataset.ramp ? +el.dataset.ramp : 0, op: -1, k: -1 }));
 const VIDEO_URL = 'assets/hero-scrub.mp4';
-const VIDEO_BYTES = 5863839; // real byte size of hero-scrub.mp4
+const VIDEO_BYTES = 4536480; // real byte size of hero-scrub.mp4
 const POSTER = 'assets/hero-poster.jpg';
 let heroOnScreen = true;
 let target = 0, shown = 0, rafId = null, lastTick = 0;
