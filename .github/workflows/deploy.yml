@@ -32,6 +32,9 @@ jobs:
       - name: Add the Meshadreg AI static site
         run: cp -r meshadreg-site dist/meshadreg
 
+      - name: Add the ACT Haifa static site
+        run: cp -r act-haifa dist/act
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

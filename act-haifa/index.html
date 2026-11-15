@@ -11,8 +11,8 @@
 <meta property="og:title" content="ACT חיפה | חדר כושר מקצועי">
 <meta property="og:description" content="חדר כושר מקצועי עם קהילה. ליווי אישי, ציוד ברמת תחרות ותוכנית לפי המטרה שלך.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://example.com/">
-<meta property="og:image" content="https://example.com/assets/hero-ending.jpg">
+<meta property="og:url" content="https://hadar2255.github.io/summry/act/">
+<meta property="og:image" content="https://hadar2255.github.io/summry/act/assets/hero-ending.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Karantina:wght@700&display=swap" rel="stylesheet">
@@ -248,6 +248,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   .barline{--draw:1}
   .lift-done{opacity:1;transform:none}
 }
+@media (pointer:coarse){footer a{display:inline-block;padding:12px 4px;margin:-12px -4px}}
 </style>
 </head>
 <body>
@@ -488,8 +489,10 @@ $$('.band .split').forEach((el, bi) => {
 /* hero scrub */
 const hero = $('#hero'), stage = $('#stage'), video = $('#vid'), ring = $('#ring'), posterLayer = $('#poster'), cue = $('#cue');
 const bands = $$('.band').map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, ramp: el.dataset.ramp ? +el.dataset.ramp : 0, op: -1, k: -1 }));
-const VIDEO_URL = 'assets/hero-scrub.mp4';
-const VIDEO_BYTES = 4536480; // real byte size of hero-scrub.mp4
+/* phones get a lighter encode: same frames, sized for a phone screen */
+const SMALL = matchMedia('(max-width: 720px), (orientation: portrait) and (max-width: 1024px)').matches;
+const VIDEO_URL = SMALL ? 'assets/hero-scrub-m.mp4' : 'assets/hero-scrub.mp4';
+const VIDEO_BYTES = SMALL ? 1637143 : 4536480; // real byte sizes
 const POSTER = 'assets/hero-poster.jpg';
 let heroOnScreen = true;
 let target = 0, shown = 0, rafId = null, lastTick = 0;
