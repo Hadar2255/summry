@@ -3,3 +3,5 @@ dist
 .vite
 *.log
 .DS_Store
+act-work/review/
+meshadreg-work/review/

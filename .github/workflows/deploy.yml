@@ -29,6 +29,9 @@ jobs:
 
       - run: npm run build
 
+      - name: Add the Meshadreg AI static site
+        run: cp -r meshadreg-site dist/meshadreg
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3

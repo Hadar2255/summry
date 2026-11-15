@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ACT חיפה | חדר כושר מקצועי</title>
+<meta name="description" content="ACT חיפה: חדר כושר מקצועי עם קהילה. ליווי אישי של מאמנים, ציוד ברמת תחרות ותוכנית לפי המטרה שלך. אבא הלל סילבר 71, חיפה.">
+<meta name="theme-color" content="#141618">
+<link rel="icon" type="image/svg+xml" href="assets/act-logo.svg">
+<!-- DEPLOY STEP: patch og:url and og:image with the live absolute URL before zipping -->
+<meta property="og:title" content="ACT חיפה | חדר כושר מקצועי">
+<meta property="og:description" content="חדר כושר מקצועי עם קהילה. ליווי אישי, ציוד ברמת תחרות ותוכנית לפי המטרה שלך.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:image" content="https://example.com/assets/hero-ending.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Karantina:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#141618;--panel:#1d2023;--panel-2:#24282c;
+  --accent:#f39400;--accent-hover:#ffa826;--accent-muted:#f3940033;
+  --text-primary:#ece9e2;--text-secondary:#a7a49d;--line:#3a3f44;--line-strong:#6b7178;
+  --p25:#f39400;--p20:#f39400;--p15:#f39400;--p10:#f39400;
+  --display:'Karantina',system-ui,sans-serif;--body:'Assistant',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1);--ease-io:cubic-bezier(.65,0,.35,1);
+  --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{overflow-x:hidden;overflow-x:clip;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:hidden;overflow-x:clip;background:var(--canvas);color:var(--text-primary);font-family:var(--body);font-size:18px;line-height:1.6;animation:pagein 1s var(--ease-out) both}
+@keyframes pagein{from{opacity:0}to{opacity:1}}
+img{max-width:100%;display:block}
+a{color:inherit}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:fixed;inset-inline-start:16px;top:-60px;z-index:100;background:var(--accent);color:#141618;padding:10px 16px;border-radius:8px;text-decoration:none;transition:top .3s var(--ease-out)}
+.skip:focus{top:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+main:focus{outline:none}
+
+/* the one environment: fixed background layer */
+.env{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;background:var(--canvas)}
+.env::before{content:"";position:absolute;inset:-20%;background:radial-gradient(40% 35% at 50% 30%,#2a2f3433,transparent 70%),radial-gradient(30% 30% at 20% 80%,#f394000d,transparent 70%);animation:envdrift 70s var(--ease-io) -12s infinite alternate}
+.env::after{content:"";position:absolute;inset:0;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+@keyframes envdrift{to{transform:translate3d(4%,6%,0) scale(1.08)}}
+.dust{position:absolute;width:3px;height:3px;border-radius:50%;background:#ece9e2;opacity:0;animation:dust 22s linear infinite}
+@keyframes dust{0%{opacity:0;transform:translate3d(0,0,0)}15%{opacity:.18}85%{opacity:.12}100%{opacity:0;transform:translate3d(30px,-160px,0)}}
+
+/* nav */
+.nav{position:fixed;inset-inline:0;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px clamp(16px,4vw,48px);background:linear-gradient(#141618e6,#14161800);transition:background .5s var(--ease-out)}
+.nav.solid{background:#141618f2;box-shadow:0 1px 0 var(--line)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-size:34px;line-height:1;letter-spacing:.02em}
+.brand img{width:56px;height:56px;margin-block:-8px}
+.nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+.nav ul a{text-decoration:none;color:var(--text-secondary);font-weight:600;transition:color .3s var(--ease-out)}
+.nav ul a:hover{color:var(--text-primary)}
+@media (max-width:860px){.nav ul{display:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 22px;border-radius:10px;border:1px solid transparent;font:600 18px/1.2 var(--body);text-decoration:none;cursor:pointer;transition:background .35s var(--ease-out),transform .35s var(--ease-out),border-color .35s var(--ease-out),color .35s var(--ease-out)}
+.btn-accent{background:var(--accent);color:#141618}
+.btn-accent:hover{background:var(--accent-hover);transform:translateY(-2px)}
+.btn-ghost{border-color:var(--line-strong);color:var(--text-primary);background:#14161866}
+.btn-ghost:hover{border-color:var(--text-primary)}
+@media (pointer:coarse){.btn{min-height:44px}}
+
+/* HERO */
+.hero{position:relative;height:520vh}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--canvas)}
+.poster,.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background-size:cover;background-position:center}
+.stage video{opacity:0;transition:opacity .9s var(--ease-out);will-change:transform;transform:translateZ(0)}
+.stage.video-ready video{opacity:1}
+.stage.video-failed video{display:none}
+.scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%),linear-gradient(#14161899,transparent 18%)}
+.band{position:absolute;opacity:0;text-shadow:var(--tshadow);max-width:min(560px,42vw);will-change:opacity}
+.band::before{content:"";position:absolute;inset:-30% -24%;z-index:-1;pointer-events:none;opacity:calc(.25 + .75*var(--k,1));background:radial-gradient(ellipse 74% 62% at 50% 50%,rgba(5,5,10,var(--sa,.66)) 0%,rgba(5,5,10,calc(var(--sa,.66)*.66)) 46%,rgba(5,5,10,0) 76%)}
+.band.side-start{inset-inline-start:clamp(24px,6vw,96px);top:50%;transform:translateY(-50%)}
+.band.side-end{inset-inline-end:clamp(24px,6vw,96px);top:50%;transform:translateY(-50%)}
+.band.settle{inset-inline:0;margin-inline:auto;bottom:9vh;max-width:min(820px,90vw);text-align:center}
+.band.pos-r1{inset-inline-start:clamp(24px,4vw,72px);top:50%;transform:translateY(-50%);max-width:27vw}
+.band.pos-r1 .h-hero{font-size:clamp(52px,6vw,112px)}
+.band.pos-bl{inset-inline-end:clamp(24px,5vw,88px);bottom:8vh;max-width:min(620px,44vw)}
+.band.pos-top{inset-inline:0;margin-inline:auto;top:13vh;max-width:min(1100px,92vw);text-align:center}
+.band.pos-top .sub-hero{margin-inline:auto}
+.kicker{font:500 13px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--text-secondary);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.settle .kicker{justify-content:center}
+.kicker i{width:10px;height:10px;border-radius:2px;background:var(--p25);display:inline-block}
+.h-hero{font-family:var(--display);font-weight:700;font-size:clamp(56px,7.4vw,124px);line-height:.95;margin:0;letter-spacing:.01em}
+.sub-hero{font-size:clamp(18px,1.5vw,23px);color:var(--text-primary);margin:16px 0 0;max-width:34ch}
+.settle .sub-hero{margin-inline:auto}
+.settle .row{margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.band .btn{text-shadow:none}
+.w{display:inline-block;padding-block:.08em;margin-block:-.08em}
+.c{display:inline-block}
+/* entrances */
+.e-drift .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*-28px))}
+.e-scatter .c{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);transform:translate(calc((1 - var(--kc))*var(--jx,0px)),calc((1 - var(--kc))*var(--jy,0px))) rotate(calc((1 - var(--kc))*var(--jr,0deg)))}
+.e-punch .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);--ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);opacity:var(--kc);transform:scale(calc(.6 + (.4 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)))}
+.e-punch .w.em{--ov:.24;--sd:.16;--ss:2.6;color:var(--accent-hover)}
+.e-rise .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*34px))}
+.e-rise .stage-sub{--ks:clamp(0,(var(--k,0) - .66)*4,1);opacity:var(--ks);transform:translateY(calc((1 - var(--ks))*14px))}
+.e-rise .stage-btn{--kb:clamp(0,(var(--k,0) - .78)*5,1);opacity:var(--kb);transform:translateY(calc((1 - var(--kb))*14px))}
+.sub-fade{--ks:clamp(0,(var(--k,0) - .5)*3,1);opacity:var(--ks)}
+/* loading ring + cue */
+.ring{position:absolute;inset-inline-end:28px;bottom:26px;width:44px;height:44px;color:var(--text-primary);opacity:.8;transition:opacity .6s var(--ease-out)}
+.ring circle{transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .2s linear}
+.ring .track{opacity:.18}
+.stage.video-ready .ring{opacity:0}
+.cue{position:absolute;inset-inline:0;margin-inline:auto;bottom:22px;width:max-content;font:500 12px/1 var(--mono);letter-spacing:.2em;color:var(--text-secondary);display:flex;flex-direction:column;align-items:center;gap:8px;text-shadow:var(--tshadow);transition:opacity .5s var(--ease-out)}
+.cue span{width:1px;height:34px;background:linear-gradient(var(--text-secondary),transparent);animation:cue 2.4s var(--ease-io) -.8s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.cue.gone{opacity:0}
+@media (max-height:560px){.cue,.kg{display:none}}
+
+/* phones and portrait tablets: the scrub runs in a wide window at the top, captions below it */
+@media (max-width: 720px), (orientation: portrait) and (max-width: 1024px){
+  .poster,.stage video,.scrim{top:64px;bottom:auto;height:50svh}
+  .scrim{background:linear-gradient(#14161866,transparent 20%,transparent 80%,#141618)}
+  .band.pos-r1,.band.pos-bl,.band.pos-top,.band.settle{inset:auto;top:calc(64px + 50svh + 14px);inset-inline:20px;bottom:auto;transform:none;max-width:none;margin:0;text-align:start}
+  .band::before{display:none}
+  .band .h-hero{font-size:clamp(40px,11vw,64px)!important}
+  .band .sub-hero{max-width:none;font-size:18px;margin-inline:0}
+  .settle .row{justify-content:flex-start}
+  .settle .kicker{justify-content:flex-start}
+  .ring{top:calc(64px + 50svh - 60px);bottom:auto}
+  .cue{bottom:18px}
+  body .kg{display:none}
+}
+/* static hero (the two gates: short landscape phones, reduced motion) */
+.hero-static{display:none}
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+  .hero{display:none}
+  .hero-static{display:flex;position:relative;min-height:100svh;align-items:flex-end;padding:120px 20px 56px;background:linear-gradient(180deg,#14161833 0%,#141618 88%),url('assets/hero-ending.jpg') center 35%/cover no-repeat}
+  body .kg{display:none}
+}
+.hero-static .h-hero{font-size:clamp(52px,14vw,96px)}
+.hero-static .sub-hero{font-size:19px}
+.hero-static .row{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap}
+
+/* kg counter: the signature */
+.kg{position:fixed;inset-inline-start:20px;bottom:20px;z-index:40;font:500 13px/1 var(--mono);letter-spacing:.12em;padding:10px 14px;background:rgba(8,8,15,.55);border:1px solid rgba(96,96,126,.3);border-radius:10px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--text-secondary);display:flex;gap:10px;align-items:baseline}
+.kg b{color:var(--text-primary);font-weight:500;font-size:17px;min-width:3.2ch;text-align:end;display:inline-block}
+
+/* sections */
+section.s{position:relative;padding:clamp(88px,12vw,160px) clamp(20px,6vw,96px)}
+.wrap{max-width:1180px;margin:0 auto}
+.label{font:500 13px/1 var(--mono);letter-spacing:.18em;color:var(--text-secondary);display:flex;align-items:center;gap:10px;margin:0 0 18px}
+.label i{width:10px;height:10px;border-radius:2px;display:inline-block}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(48px,6vw,92px);line-height:.95;margin:0 0 20px;max-width:16ch}
+.lede{color:var(--text-secondary);font-size:20px;max-width:46ch;margin:0}
+/* bar line that draws itself */
+.barline{display:block;width:100%;height:24px;margin:0 auto;max-width:1180px}
+.barline path{stroke:var(--line-strong);stroke-width:2;fill:none;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--draw,0))}
+.barline rect{fill:var(--line-strong);opacity:calc(var(--draw,0))}
+
+/* reveal choreography */
+.rv .it{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
+.rv.in .it{opacity:1;transform:none}
+.rv.in .it:nth-child(2){transition-delay:.12s}
+.rv.in .it:nth-child(3){transition-delay:.24s}
+.rv.in .it:nth-child(4){transition-delay:.36s}
+.rv.settled .it,.rv.settled .it:nth-child(2),.rv.settled .it:nth-child(3),.rv.settled .it:nth-child(4){transition-delay:0s}
+
+/* why */
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:32px 28px;position:relative;overflow:hidden;transition:border-color .4s var(--ease-out),transform .4s var(--ease-out)}
+.card:hover{border-color:var(--line-strong);transform:translateY(-4px)}
+.card .plate{width:44px;height:44px;border-radius:50%;border:6px solid var(--pc);display:grid;place-items:center;margin-bottom:22px;font:500 12px/1 var(--mono);color:var(--pc)}
+.card h3{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;margin:0 0 12px}
+.card p{margin:0;color:var(--text-secondary)}
+@media (max-width:900px){.why{grid-template-columns:1fr}}
+
+/* lift: the one interactive moment */
+.lift{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:center}
+.liftbox{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px;text-align:center}
+.liftbox svg{width:100%;height:auto;display:block}
+.liftbox .pl{opacity:0;transform:scaleY(.4);transform-box:fill-box;transform-origin:center;transition:opacity .25s var(--ease-out),transform .35s var(--ease-out)}
+.liftbox .pl.on{opacity:1;transform:none}
+.liftbox .readout{font:500 15px/1 var(--mono);color:var(--text-secondary);margin:18px 0 20px;letter-spacing:.12em}
+.liftbox .readout b{font-size:44px;color:var(--text-primary);font-weight:500;display:inline-block;min-width:3.4ch}
+.hold{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:none;min-width:240px}
+.hold .fill{position:absolute;inset:0;background:#ffffff40;transform-origin:right;transform:scaleX(var(--hp,0))}
+.hold span{position:relative}
+.lift-done{margin-top:18px;color:var(--text-secondary);opacity:0;transform:translateY(8px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out)}
+.liftbox.done .lift-done{opacity:1;transform:none;color:var(--text-primary)}
+.liftbox .glow{position:absolute}
+@media (max-width:900px){.lift{grid-template-columns:1fr}}
+
+/* proof */
+.proof{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:56px}
+.stat{border-top:2px solid var(--line);padding-top:20px}
+.stat b{display:block;font-family:var(--display);font-weight:700;font-size:clamp(48px,4.8vw,76px);line-height:1}
+.stat span{color:var(--text-secondary);font-size:17px}
+.stat.red{border-color:var(--p25)}
+@media (max-width:900px){.proof{grid-template-columns:1fr 1fr}}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px;counter-reset:st}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.step .ph{aspect-ratio:4/3;background:var(--panel-2) center/cover no-repeat;position:relative}
+.step .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,#1d2023)}
+.step .tx{padding:4px 26px 28px}
+.step .n{font:500 13px/1 var(--mono);color:var(--text-secondary);letter-spacing:.16em}
+.step h3{font-family:var(--display);font-weight:700;font-size:40px;line-height:1;margin:10px 0 10px}
+.step p{margin:0;color:var(--text-secondary)}
+@media (max-width:900px){.steps{grid-template-columns:1fr}}
+
+/* faq */
+.faq{margin-top:48px;max-width:860px}
+.faq details{border-bottom:1px solid var(--line);padding:6px 0}
+.faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;font-size:22px;font-weight:600}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:500 26px/1 var(--mono);color:var(--text-secondary);transition:transform .4s var(--ease-out)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{margin:0 0 20px;color:var(--text-secondary);max-width:60ch}
+
+/* visit */
+.visit{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:stretch}
+.visit .img{border-radius:20px;min-height:360px;background:var(--panel-2) center/cover no-repeat;border:1px solid var(--line)}
+.hours{list-style:none;padding:0;margin:28px 0 0;font-family:var(--mono);font-size:16px}
+.hours li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.hours li span:first-child{font-family:var(--body);font-size:18px}
+@media (max-width:900px){.visit{grid-template-columns:1fr}}
+
+/* cta */
+.cta{background:radial-gradient(60% 80% at 50% 0%,#f3940014,transparent 70%)}
+.cta-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+form{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px;display:grid;gap:16px}
+label{display:grid;gap:6px;font-weight:600}
+input,select,textarea{font:400 18px/1.4 var(--body);color:var(--text-primary);background:var(--canvas);border:1px solid var(--line-strong);border-radius:10px;padding:12px 14px;transition:border-color .3s var(--ease-out)}
+input:focus,select:focus,textarea:focus{border-color:var(--text-primary);outline:none}
+input::placeholder,textarea::placeholder{color:#8a877f}
+.ok{display:none;padding:28px;border-radius:14px;background:#2f9e5719;border:1px solid #2f9e5766;font-size:20px}
+form.sent>*:not(.ok){display:none}
+form.sent .ok{display:block}
+@media (max-width:900px){.cta-grid{grid-template-columns:1fr}}
+
+footer{padding:56px clamp(20px,6vw,96px) 96px;border-top:1px solid var(--line);color:var(--text-secondary);font-size:16px}
+footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:baseline}
+footer a{text-decoration:none}
+footer a:hover{color:var(--text-primary)}
+
+/* pause loops off-screen / hidden tab */
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;transition-delay:0s!important}
+  .rv .it{opacity:1;transform:none}
+  .barline{--draw:1}
+  .lift-done{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">דלג לתוכן</a>
+<div class="env" aria-hidden="true"></div>
+
+<nav class="nav" aria-label="ראשי">
+  <a class="brand" href="#top" aria-label="ACT חיפה, לראש העמוד"><img src="assets/act-logo.svg" alt="" width="56" height="56"></a>
+  <ul>
+    <li><a href="#why">למה ACT</a></li>
+    <li><a href="#steps">איך מתחילים</a></li>
+    <li><a href="#faq">שאלות</a></li>
+    <li><a href="#visit">שעות וכתובת</a></li>
+  </ul>
+  <a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a>
+</nav>
+
+<div class="kg" aria-hidden="true">KG <b id="kgv">0</b></div>
+
+<main id="main" tabindex="-1">
+<span id="top"></span>
+
+<!-- scroll hero (desktop) -->
+<section class="hero" id="hero" aria-label="פתיחה">
+  <div class="stage" id="stage">
+    <div class="poster" id="poster" aria-hidden="true"></div>
+    <video id="vid" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="scrim" aria-hidden="true"></div>
+
+    <div class="band pos-r1 e-drift" data-a="0" data-b="0.22" style="--sa:.7">
+      <p class="kicker"><i></i>חדר כושר · חיפה</p>
+      <h1 class="h-hero split">ACT חיפה</h1>
+      <p class="sub-hero">חדר כושר מקצועי עם קהילה אמיתית.</p>
+    </div>
+
+    <div class="band pos-bl e-scatter" data-a="0.26" data-b="0.50" data-spread="0.5" style="--sa:.66">
+      <p class="h-hero split" style="font-size:clamp(48px,5.6vw,96px)">מאמנים שמכירים אותך בשם.</p>
+      <p class="sub-hero sub-fade">כל מתאמן מקבל תוכנית, ליווי ותיקון טכניקה על הרצפה.</p>
+    </div>
+
+    <div class="band pos-top e-punch" data-a="0.54" data-b="0.76" style="--sa:.68">
+      <p class="h-hero split" style="font-size:clamp(44px,4.6vw,84px)">מתחילים או מתחרים.</p>
+      <p class="sub-hero sub-fade">אותו יחס מקצועי לכולם. חלק מהמתאמנים שלנו מתחרים בתחרויות בינלאומיות.</p>
+    </div>
+
+    <div class="band settle e-rise" data-a="0.80" data-b="1" style="--sa:.62">
+      <p class="h-hero split">בוא לאימון ניסיון.</p>
+      <p class="sub-hero stage-sub">נכיר, נבדוק איפה אתה עומד ונבנה לך תוכנית.</p>
+      <div class="row stage-btn"><a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a><a class="btn btn-ghost" href="tel:+97248220242">04-822-0242</a></div>
+    </div>
+
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true"><circle class="track" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/></svg>
+    <div class="cue" id="cue" aria-hidden="true">גלול<span></span></div>
+  </div>
+</section>
+
+<!-- static hero (phones, reduced motion) -->
+<section class="hero-static" aria-label="פתיחה">
+  <div>
+    <p class="kicker"><i></i>חדר כושר · חיפה</p>
+    <h1 class="h-hero">ACT חיפה. חדר כושר מקצועי עם קהילה אמיתית.</h1>
+    <p class="sub-hero">ליווי אישי של מאמנים, ציוד ברמת תחרות ותוכנית לפי המטרה שלך.</p>
+    <div class="row"><a class="btn btn-accent" href="#cta">קבע אימון ניסיון</a></div>
+  </div>
+</section>
+
+<svg class="barline draw" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12H1000" pathLength="1"/><rect x="60" y="2" width="14" height="20" rx="2"/><rect x="926" y="2" width="14" height="20" rx="2"/></svg>
+
+<section class="s" id="why">
+  <div class="wrap rv">
+    <p class="label it"><i style="background:var(--p20)"></i>למה ACT</p>
+    <h2 class="it">מה מקבלים ב-ACT.</h2>
+    <p class="lede it">ליווי של מאמנים מקצועיים, ציוד ברמת תחרות ואנשים שבאים להתאמן ביחד.</p>
+  </div>
+  <div class="wrap why rv">
+    <article class="card it" style="--pc:var(--p20)"><div class="plate" aria-hidden="true">01</div><h3>ליווי אישי.</h3><p>תוכנית לפי המטרה שלך, ומאמן על הרצפה שמתקן טכניקה ומעדכן את התוכנית כשאתה מתקדם.</p></article>
+    <article class="card it" style="--pc:var(--p15)"><div class="plate" aria-hidden="true">02</div><h3>ציוד ברמת תחרות.</h3><p>מתקני סקוואט, פלטפורמות לדדליפט, מוטות ופלטות תחרות. לא מחכים בתור.</p></article>
+    <article class="card it" style="--pc:var(--p10)"><div class="plate" aria-hidden="true">03</div><h3>קהילה.</h3><p>מתאמנים שמכירים אחד את השני ודוחפים אחד את השני קדימה. זה מה שגורם לך לחזור.</p></article>
+  </div>
+</section>
+
+<section class="s" id="lift" aria-labelledby="lift-h">
+  <div class="wrap lift">
+    <div class="rv">
+      <p class="label it"><i style="background:var(--p25)"></i>איך מתקדמים</p>
+      <h2 class="it" id="lift-h">פלטה אחרי פלטה.</h2>
+      <p class="lede it">ככה בונים כוח אצלנו: בשלבים, עם תוכנית ומאמן שעוקב. החזק את הכפתור וראה את המוט מתמלא.</p>
+    </div>
+    <div class="liftbox" id="liftbox">
+      <svg viewBox="0 0 600 200" aria-hidden="true">
+        <rect x="20" y="94" width="560" height="12" rx="4" fill="#9aa0a6"/>
+        <rect x="150" y="84" width="10" height="32" rx="2" fill="#9aa0a6"/><rect x="440" y="84" width="10" height="32" rx="2" fill="#9aa0a6"/>
+        <g id="plates"></g>
+      </svg>
+      <p class="readout"><b id="liftkg">20</b> KG</p>
+      <button class="btn btn-accent hold" id="hold" type="button" aria-describedby="liftkg"><span class="fill" aria-hidden="true"></span><span id="holdtx">החזק כדי להעמיס</span></button>
+      <p class="lift-done" id="liftdone">250 ק"ג. לשם מגיעים בשלבים, לא ביום אחד.</p>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="proof">
+  <div class="wrap rv">
+    <p class="label it"><i style="background:var(--p15)"></i>הוכחות</p>
+    <h2 class="it">התוצאות של המתאמנים.</h2>
+  </div>
+  <div class="wrap proof rv">
+    <div class="stat red it"><b dir="ltr">200+</b><span>ק"ג בסקוואט</span></div>
+    <div class="stat it"><b dir="ltr">250+</b><span>ק"ג בדדליפט</span></div>
+    <div class="stat it"><b dir="ltr">180+</b><span>ק"ג בלחיצת חזה</span></div>
+    <div class="stat it"><b>4.6</b><span>מתוך 5 ב-66 ביקורות בגוגל</span></div>
+  </div>
+</section>
+
+<svg class="barline draw" viewBox="0 0 1000 24" preserveAspectRatio="none" aria-hidden="true"><path d="M0 12H1000" pathLength="1"/><rect x="60" y="2" width="14" height="20" rx="2"/><rect x="926" y="2" width="14" height="20" rx="2"/></svg>
+
+<section class="s" id="steps">
+  <div class="wrap rv">
+    <p class="label it"><i style="background:var(--p10)"></i>איך מתחילים</p>
+    <h2 class="it">שלושה צעדים לאימון הראשון.</h2>
+  </div>
+  <div class="wrap steps rv">
+    <article class="step it"><div class="ph" style="background-image:url('assets/step-1.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">01</span><h3>מתקשרים.</h3><p>שיחה קצרה, תשובה ישירה על מחיר ושעות. בלי פגישת מכירה.</p></div></article>
+    <article class="step it"><div class="ph" style="background-image:url('assets/step-2.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">02</span><h3>אימון ניסיון.</h3><p>מאמן בודק איפה אתה עומד: טכניקה, כוח, מטרה.</p></div></article>
+    <article class="step it"><div class="ph" style="background-image:url('assets/step-3.jpg')" aria-hidden="true"></div><div class="tx"><span class="n">03</span><h3>תוכנית ביד.</h3><p>יוצאים עם תוכנית אישית ומתחילים להתקדם כבר מהשבוע הראשון.</p></div></article>
+  </div>
+</section>
+
+<section class="s" id="faq">
+  <div class="wrap rv">
+    <p class="label it"><i style="background:var(--p20)"></i>שאלות</p>
+    <h2 class="it">שאלות נפוצות.</h2>
+    <div class="faq it">
+      <details><summary>אני מתחיל. זה בכלל בשבילי?</summary><p>כן. מאמנים מתחרים יודעים גם ללמד מאפס, ובונים את הבסיס נכון מההתחלה.</p></details>
+      <details><summary>אני לא מכיר שם אף אחד.</summary><p>רוב המתאמנים הגיעו לבד. אחרי כמה אימונים כבר מכירים את כולם.</p></details>
+      <details><summary>חייבים להתחרות?</summary><p>לא. רוב המתאמנים באים להתחזק ולהרגיש טוב. מי שרוצה להתחרות מקבל הכנה מלאה.</p></details>
+      <details><summary>צפוף בערב?</summary><p>בשעות השיא יש יותר אנשים. בבוקר ובצהריים יש הרבה מקום, ונשמח להמליץ על שעות.</p></details>
+      <details><summary>כמה זה עולה?</summary><p>נגיד לך בטלפון, ישר ובלי סיבובים.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="visit">
+  <div class="wrap visit">
+    <div class="rv">
+      <p class="label it"><i style="background:var(--p15)"></i>שעות וכתובת</p>
+      <h2 class="it">אבא הלל סילבר 71, חיפה.</h2>
+      <ul class="hours it">
+        <li><span>ראשון עד חמישי</span><span>07:00 עד 22:30</span></li>
+        <li><span>שישי</span><span>07:00 עד 17:00</span></li>
+        <li><span>שבת</span><span>11:00 עד 15:00</span></li>
+      </ul>
+      <p class="it" style="margin-top:24px"><a class="btn btn-ghost" href="https://www.google.com/maps/search/?api=1&query=%D7%90%D7%91%D7%90+%D7%94%D7%9C%D7%9C+%D7%A1%D7%99%D7%9C%D7%91%D7%A8+71+%D7%97%D7%99%D7%A4%D7%94" target="_blank" rel="noopener">פתח במפות</a></p>
+    </div>
+    <div class="img rv" style="background-image:url('assets/hero-ending.jpg')" aria-hidden="true"></div>
+  </div>
+</section>
+
+<section class="s cta" id="cta" aria-labelledby="cta-h">
+  <div class="wrap cta-grid">
+    <div class="rv">
+      <p class="label it"><i style="background:var(--p25)"></i>אימון היכרות</p>
+      <h2 class="it" id="cta-h">בוא לאימון ניסיון.</h2>
+      <p class="lede it">השאר פרטים ונחזור אליך, או פשוט תתקשר.</p>
+      <p class="it" style="margin-top:28px"><a class="btn btn-ghost" href="tel:+97248220242">התקשר: 04-822-0242</a></p>
+    </div>
+    <form id="form" novalidate>
+      <label>שם<input name="name" autocomplete="name" required placeholder="איך קוראים לך?"></label>
+      <label>טלפון<input name="phone" type="tel" autocomplete="tel" required placeholder="050-0000000" dir="ltr" style="text-align:right"></label>
+      <label>מה המטרה?
+        <select name="goal"><option>להתחזק</option><option>להתחיל מאפס</option><option>להתכונן לתחרות</option><option>לבנות מסת שריר</option></select>
+      </label>
+      <button class="btn btn-accent" type="submit">קבע אימון ניסיון</button>
+      <div class="ok" role="status" aria-live="polite">קיבלנו. נחזור אליך עוד היום.</div>
+    </form>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>ACT · חדר כושר · אבא הלל סילבר 71, חיפה</span>
+    <span><a href="tel:+97248220242">04-822-0242</a> · <a href="https://www.instagram.com/act.training" target="_blank" rel="noopener">אינסטגרם</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const smoothstep = (p, e0, e1) => { const t = clamp((p - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+function rng(seed){ let s = seed >>> 0; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296; }
+const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
+
+/* environment dust */
+const env = $('.env');
+const r0 = rng(7);
+for (let i = 0; i < 26; i++) {
+  const d = document.createElement('i'); d.className = 'dust';
+  d.style.left = (r0() * 100) + '%'; d.style.top = (20 + r0() * 80) + '%';
+  d.style.animationDelay = (-r0() * 22).toFixed(1) + 's';
+  d.style.animationDuration = (18 + r0() * 12).toFixed(1) + 's';
+  env.appendChild(d);
+}
+
+/* split hero text */
+$$('.band .split').forEach((el, bi) => {
+  const band = el.closest('.band');
+  const text = el.textContent.trim();
+  const ems = (el.dataset.em || '').split(',').filter(Boolean);
+  const R = rng(1000 + bi * 77);
+  const spread = Number(band.dataset.spread || 0.55);
+  el.textContent = '';
+  const sr = document.createElement('span'); sr.className = 'sr'; sr.textContent = text; el.appendChild(sr);
+  const vis = document.createElement('span'); vis.setAttribute('aria-hidden', 'true'); el.appendChild(vis);
+  const words = text.split(' ');
+  words.forEach((wd, wi) => {
+    const w = document.createElement('span'); w.className = 'w';
+    if (ems.some(e => wd.startsWith(e))) w.classList.add('em');
+    w.style.setProperty('--th', (wi / Math.max(1, words.length) * 0.5).toFixed(3));
+    if (band.classList.contains('e-scatter')) {
+      [...wd].forEach(ch => {
+        const c = document.createElement('span'); c.className = 'c'; c.textContent = ch;
+        c.style.setProperty('--th', (R() * spread).toFixed(3));
+        c.style.setProperty('--jx', ((R() - .5) * 120).toFixed(1) + 'px');
+        c.style.setProperty('--jy', ((R() - .5) * 90).toFixed(1) + 'px');
+        c.style.setProperty('--jr', ((R() - .5) * 50).toFixed(1) + 'deg');
+        w.appendChild(c);
+      });
+    } else { w.textContent = wd; }
+    vis.appendChild(w);
+    if (wi < words.length - 1) vis.appendChild(document.createTextNode(' '));
+  });
+});
+
+/* hero scrub */
+const hero = $('#hero'), stage = $('#stage'), video = $('#vid'), ring = $('#ring'), posterLayer = $('#poster'), cue = $('#cue');
+const bands = $$('.band').map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, ramp: el.dataset.ramp ? +el.dataset.ramp : 0, op: -1, k: -1 }));
+const VIDEO_URL = 'assets/hero-scrub.mp4';
+const VIDEO_BYTES = 4536480; // real byte size of hero-scrub.mp4
+const POSTER = 'assets/hero-poster.jpg';
+let heroOnScreen = true;
+let target = 0, shown = 0, rafId = null, lastTick = 0;
+let seekBusy = false, pendingTime = null;
+let loadK = 0, loadStart = 0;
+
+function heroProgress(){
+  const r = hero.getBoundingClientRect();
+  const range = hero.offsetHeight - innerHeight;
+  return range > 0 ? clamp(-r.top / range, 0, 1) : 0;
+}
+function requestSeek(t){
+  if (!video.duration || !isFinite(t)) return;
+  if (seekBusy) { pendingTime = t; return; }
+  seekBusy = true; video.currentTime = t;
+}
+video.addEventListener('seeked', () => {
+  seekBusy = false;
+  if (pendingTime !== null) { const t = pendingTime; pendingTime = null; requestSeek(t); }
+});
+video.addEventListener('error', () => { seekBusy = false; pendingTime = null; failVideo(); });
+
+let cueGone = false;
+function updateCaptions(p, now){
+  bands.forEach((B, i) => {
+    const { a, b } = B;
+    const f = Math.min(0.02, (b - a) / 3);
+    let op = (i === 0 ? 1 : smoothstep(p, a, a + f)) * (i === bands.length - 1 ? 1 : 1 - smoothstep(p, b - f, b));
+    if (i === bands.length - 1 && p < a) op = 0;
+    let k = clamp((p - a) / (B.ramp || Math.min(0.025, (b - a) * 0.35)), 0, 1);
+    if (i === 0) k = Math.max(k, loadK);
+    op = Math.round(op * 1000) / 1000;
+    if (op !== B.op) { B.op = op; B.el.style.opacity = op; B.el.style.visibility = op > 0 ? 'visible' : 'hidden'; }
+    if (Math.abs(k - B.k) > 0.008 || (k === 1 && B.k !== 1) || (k === 0 && B.k !== 0)) { B.k = k; B.el.style.setProperty('--k', k.toFixed(3)); }
+  });
+  const g = p > 0.03;
+  if (g !== cueGone) { cueGone = g; cue.classList.toggle('gone', g); }
+}
+function tick(now){
+  const dt = Math.min(100, now - (lastTick || now)); lastTick = now;
+  const k = 0.16;
+  shown += (target - shown) * (1 - Math.pow(1 - k, dt / 16.667));
+  if (loadK < 1) { loadK = clamp((now - loadStart) / 1400, 0, 1); loadK = 1 - Math.pow(1 - loadK, 3); }
+  if (Math.abs(target - shown) < 0.0005 && loadK >= 1) { shown = target; rafId = null; lastTick = 0; }
+  else rafId = requestAnimationFrame(tick);
+  if (video.duration) requestSeek(shown * video.duration);
+  updateCaptions(shown, now);
+}
+function onScroll(){
+  target = heroProgress();
+  if (rafId === null && heroOnScreen) rafId = requestAnimationFrame(tick);
+}
+new IntersectionObserver(es => { heroOnScreen = es[0].isIntersecting; if (heroOnScreen) onScroll(); }).observe(hero);
+
+let heroInit = false, started = false;
+function initHeroOnce(){
+  if (heroInit) return; heroInit = true;
+  loadStart = performance.now();
+  posterLayer.style.backgroundImage = `url('${POSTER}')`;
+  const img = new Image();
+  img.onload = startBlobFetch; img.onerror = startBlobFetch; img.src = POSTER;
+  setTimeout(startBlobFetch, 4000);
+}
+function startBlobFetch(){ if (started) return; started = true; loadHeroBlob().catch(failVideo); }
+async function loadHeroBlob(){
+  const ctrl = new AbortController();
+  let watchdog = setTimeout(() => ctrl.abort(), 20000);
+  const res = await fetch(VIDEO_URL, { priority: 'low', signal: ctrl.signal });
+  if (!res.ok) throw new Error('video ' + res.status);
+  const total = Number(res.headers.get('Content-Length')) || VIDEO_BYTES;
+  const reader = res.body.getReader();
+  const chunks = []; let got = 0, lastRing = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    clearTimeout(watchdog); watchdog = setTimeout(() => ctrl.abort(), 20000);
+    chunks.push(value); got += value.length;
+    const frac = Math.min(1, got / total), now = performance.now();
+    if (now - lastRing > 100 || frac === 1) { lastRing = now; ring.style.setProperty('--ld', Math.round(126 * (1 - frac))); }
+  }
+  clearTimeout(watchdog);
+  ring.style.setProperty('--ld', 0);
+  video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
+  video.load();
+  video.addEventListener('canplay', () => {
+    // iOS paints seeked frames only after the video has played once: prime it silently
+    const pr = video.play();
+    if (pr) pr.then(() => { video.pause(); requestSeek(heroProgress() * video.duration); }).catch(() => {});
+    requestSeek(heroProgress() * video.duration);
+    stage.classList.add('video-ready');
+  }, { once: true });
+}
+function failVideo(){
+  if (stage.classList.contains('video-failed')) return;
+  stage.classList.add('video-failed');
+  ring.style.display = 'none';
+}
+
+/* the five gates, kept live */
+const GATES = [
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
+  '(prefers-reduced-motion: reduce)'
+];
+let scrubOn = false;
+function enableScrub(){
+  if (scrubOn) return; scrubOn = true;
+  initHeroOnce();
+  addEventListener('scroll', onScroll, { passive: true });
+  bands.forEach(b => { b.op = -1; b.k = -1; });
+  unpinFinalStates();
+  updateCaptions(heroProgress(), performance.now());
+  onScroll();
+}
+function disableScrub(){
+  if (!scrubOn) return; scrubOn = false;
+  removeEventListener('scroll', onScroll);
+  if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+}
+function applyHeroMode(){ if (GATES.some(q => matchMedia(q).matches)) disableScrub(); else enableScrub(); }
+const MQLS = GATES.map(q => matchMedia(q));
+MQLS.forEach(m => m.addEventListener('change', applyHeroMode));
+
+/* kg counter: whole page progress, 10Hz, write on change */
+const kgv = $('#kgv'); let lastKg = '', lastKgAt = 0;
+function updateKg(now){
+  if (now - lastKgAt < 100) return;
+  const max = document.documentElement.scrollHeight - innerHeight;
+  const p = max > 0 ? clamp(scrollY / max, 0, 1) : 0;
+  const t = String(Math.round(p * 250 / 2.5) * 2.5).replace('.5', '.5');
+  if (t === lastKg) return;
+  lastKg = t; lastKgAt = now; kgv.textContent = t;
+}
+addEventListener('scroll', () => updateKg(performance.now()), { passive: true });
+
+/* self-drawing bar lines */
+const lines = $$('.barline.draw');
+let linesPinned = false, lastDraw = new Map();
+function drawLines(){
+  if (linesPinned) return;
+  lines.forEach(l => {
+    const r = l.getBoundingClientRect();
+    const d = clamp((innerHeight - r.top) / (innerHeight * 0.6), 0, 1);
+    const v = Math.round(d * 100) / 100;
+    if (lastDraw.get(l) !== v) { lastDraw.set(l, v); l.style.setProperty('--draw', v); }
+  });
+}
+addEventListener('scroll', drawLines, { passive: true });
+
+/* section reveals */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) {
+    e.target.classList.add('in');
+    setTimeout(() => e.target.classList.add('settled'), 1400);
+    io.unobserve(e.target);
+  }
+}), { threshold: 0.2 });
+$$('.rv').forEach(el => io.observe(el));
+
+/* nav solid after hero */
+const nav = $('.nav'); let navSolid = null;
+addEventListener('scroll', () => {
+  const s = scrollY > innerHeight * 0.6;
+  if (s !== navSolid) { navSolid = s; nav.classList.toggle('solid', s); }
+}, { passive: true });
+
+/* pause loops on hidden tab */
+document.addEventListener('visibilitychange', () => document.body.classList.toggle('paused', document.hidden));
+
+/* the lift: press and hold */
+const PLATES = [ // per side, inside out: 25,25,20,20,15,10 -> 20 bar + 2*(115) = 250
+  { kg: 25, c: '#f39400', h: 150, w: 22 }, { kg: 25, c: '#f39400', h: 150, w: 22 },
+  { kg: 20, c: '#c97a00', h: 150, w: 20 }, { kg: 20, c: '#c97a00', h: 150, w: 20 },
+  { kg: 15, c: '#3a3f44', h: 130, w: 18 }, { kg: 10, c: '#2a2e32', h: 112, w: 16 }
+];
+const g = $('#plates'), liftkg = $('#liftkg'), box = $('#liftbox'), holdBtn = $('#hold'), holdtx = $('#holdtx');
+const plateEls = [];
+let xi = 162, xo = 438;
+PLATES.forEach(p => {
+  const pair = [];
+  [[xi, 1], [xo - p.w, -1]].forEach(([x]) => {
+    const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    r.setAttribute('x', x); r.setAttribute('y', 100 - p.h / 2); r.setAttribute('width', p.w); r.setAttribute('height', p.h);
+    r.setAttribute('rx', 4); r.setAttribute('fill', p.c); r.setAttribute('class', 'pl');
+    g.appendChild(r); pair.push(r);
+  });
+  xi -= p.w + 3; xo += p.w + 3;
+  plateEls.push({ pair, kg: p.kg });
+});
+// place plates outward from collars
+(() => {
+  let L = 147, R = 453;
+  plateEls.forEach((pe, i) => {
+    const w = PLATES[i].w;
+    pe.pair[0].setAttribute('x', L - w); pe.pair[1].setAttribute('x', R);
+    L -= w + 3; R += w + 3;
+  });
+})();
+let hp = 0, holding = false, holdRaf = null, holdLast = 0, liftDone = false, lastLiftTxt = '', lastOn = -1;
+function renderLift(){
+  const n = Math.min(PLATES.length, Math.floor(hp * PLATES.length + 1e-6));
+  if (n !== lastOn) {
+    lastOn = n;
+    plateEls.forEach((pe, i) => pe.pair.forEach(r => r.classList.toggle('on', i < n)));
+  }
+  let kg = 20; for (let i = 0; i < n; i++) kg += PLATES[i].kg * 2;
+  const t = String(kg);
+  if (t !== lastLiftTxt) { lastLiftTxt = t; liftkg.textContent = t; }
+  holdBtn.style.setProperty('--hp', hp.toFixed(3));
+}
+function holdTick(now){
+  const dt = Math.min(64, now - (holdLast || now)); holdLast = now;
+  if (holding) hp = Math.min(1, hp + dt / 2600);
+  else hp = Math.max(0, hp - dt / 1600 * (0.4 + hp));
+  renderLift();
+  if (hp >= 1 && !liftDone) { liftDone = true; holding = false; box.classList.add('done'); holdtx.textContent = '250 ק"ג על המוט'; }
+  if ((holding && hp < 1) || (!holding && hp > 0 && !liftDone)) holdRaf = requestAnimationFrame(holdTick);
+  else { holdRaf = null; holdLast = 0; }
+}
+function startHold(e){ if (liftDone) return; e.preventDefault(); holding = true; if (!holdRaf) holdRaf = requestAnimationFrame(holdTick); }
+function endHold(){ holding = false; if (!holdRaf && !liftDone) holdRaf = requestAnimationFrame(holdTick); }
+holdBtn.addEventListener('pointerdown', startHold);
+['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => holdBtn.addEventListener(ev, endHold));
+holdBtn.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) startHold(e); });
+holdBtn.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') endHold(); });
+function finishLift(){ hp = 1; liftDone = true; box.classList.add('done'); holdtx.textContent = '250 ק"ג על המוט'; renderLift(); }
+
+/* reduced motion: pin and unpin */
+let pinned = false;
+function pinToFinalStates(){
+  pinned = true; linesPinned = true;
+  lines.forEach(l => l.style.setProperty('--draw', 1));
+  $$('.rv').forEach(el => el.classList.add('in', 'settled'));
+  if (!liftDone) { box.dataset.pinned = '1'; finishLift(); }
+}
+function unpinFinalStates(){
+  if (!pinned) return; pinned = false; linesPinned = false;
+  lastDraw.clear(); drawLines();
+  if (box.dataset.pinned) {
+    delete box.dataset.pinned; liftDone = false; hp = 0; lastOn = -1; box.classList.remove('done'); holdtx.textContent = 'החזק כדי להעמיס'; renderLift();
+  }
+}
+reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else applyHeroMode(); });
+if (reduceMQ.matches) pinToFinalStates();
+
+/* form: opens an email to the business (static site, no backend) */
+const BUSINESS_EMAIL = ''; // filled in once the client gives an address
+$('#form').addEventListener('submit', e => {
+  e.preventDefault();
+  const f = e.target;
+  if (!f.name.value.trim() || !f.phone.value.trim()) { (f.name.value.trim() ? f.phone : f.name).focus(); return; }
+  if (BUSINESS_EMAIL) {
+    const body = `שם: ${f.name.value}\nטלפון: ${f.phone.value}\nמטרה: ${f.goal.value}`;
+    location.href = `mailto:${BUSINESS_EMAIL}?subject=${encodeURIComponent('אימון היכרות ב-ACT')}&body=${encodeURIComponent(body)}`;
+  }
+  f.classList.add('sent');
+});
+
+renderLift();
+applyHeroMode();
+drawLines();
+updateKg(performance.now());
+})();
+</script>
+</body>
+</html>
