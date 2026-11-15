@@ -111,9 +111,23 @@ main:focus{outline:none}
 .cue.gone{opacity:0}
 @media (max-height:560px){.cue,.kg{display:none}}
 
-/* static hero (the five gates) */
+/* phones and portrait tablets: the scrub runs in a wide window at the top, captions below it */
+@media (max-width: 720px), (orientation: portrait) and (max-width: 1024px){
+  .poster,.stage video,.scrim{top:64px;bottom:auto;height:50svh}
+  .scrim{background:linear-gradient(#14161866,transparent 20%,transparent 80%,#141618)}
+  .band.pos-r1,.band.pos-bl,.band.pos-top,.band.settle{inset:auto;top:calc(64px + 50svh + 14px);inset-inline:20px;bottom:auto;transform:none;max-width:none;margin:0;text-align:start}
+  .band::before{display:none}
+  .band .h-hero{font-size:clamp(40px,11vw,64px)!important}
+  .band .sub-hero{max-width:none;font-size:18px;margin-inline:0}
+  .settle .row{justify-content:flex-start}
+  .settle .kicker{justify-content:flex-start}
+  .ring{top:calc(64px + 50svh - 60px);bottom:auto}
+  .cue{bottom:18px}
+  body .kg{display:none}
+}
+/* static hero (the two gates: short landscape phones, reduced motion) */
 .hero-static{display:none}
-@media (max-width: 720px), (orientation: portrait) and (max-width: 1024px), (orientation: portrait) and (pointer: coarse), (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
   .hero{display:none}
   .hero-static{display:flex;position:relative;min-height:100svh;align-items:flex-end;padding:120px 20px 56px;background:linear-gradient(180deg,#14161833 0%,#141618 88%),url('assets/hero-ending.jpg') center 35%/cover no-repeat}
   body .kg{display:none}
@@ -561,6 +575,9 @@ async function loadHeroBlob(){
   video.src = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }));
   video.load();
   video.addEventListener('canplay', () => {
+    // iOS paints seeked frames only after the video has played once: prime it silently
+    const pr = video.play();
+    if (pr) pr.then(() => { video.pause(); requestSeek(heroProgress() * video.duration); }).catch(() => {});
     requestSeek(heroProgress() * video.duration);
     stage.classList.add('video-ready');
   }, { once: true });
@@ -573,9 +590,6 @@ function failVideo(){
 
 /* the five gates, kept live */
 const GATES = [
-  '(max-width: 720px)',
-  '(orientation: portrait) and (max-width: 1024px)',
-  '(orientation: portrait) and (pointer: coarse)',
   '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
   '(prefers-reduced-motion: reduce)'
 ];
