@@ -308,6 +308,37 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 .browser-link{display:block;color:inherit;text-decoration:none;border-radius:inherit}
 .browser-link:hover .browser{border-color:var(--line-strong)}
 </style>
+<script>
+/* diagnostics: only with ?debug in the address */
+(() => {
+  if (!/debug/.test(location.search)) return;
+  const errs = [];
+  addEventListener('error', e => errs.push((e.message || 'resource ' + (e.target && (e.target.src || e.target.href) || '')).slice(0, 80)), true);
+  addEventListener('unhandledrejection', e => errs.push('promise: ' + String(e.reason).slice(0, 80)));
+  const box = document.createElement('pre');
+  box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:9999;margin:0;padding:10px 12px;font:12px/1.45 monospace;direction:ltr;text-align:left;white-space:pre-wrap;color:#0f0;background:rgba(0,0,0,.85);border-radius:10px;pointer-events:none';
+  addEventListener('DOMContentLoaded', () => document.body.appendChild(box));
+  const mq = q => matchMedia(q).matches ? 'YES' : 'no';
+  setInterval(() => {
+    const st = document.getElementById('stage'), c = document.querySelector('canvas.seq'), v = document.getElementById('vid');
+    const imgs = performance.getEntriesByType('resource').filter(r => /\.webp$/.test(r.name)).length;
+    box.textContent = [
+      'build: seq-v3',
+      'screen: ' + innerWidth + 'x' + innerHeight + ' dpr ' + devicePixelRatio,
+      'phone layout: ' + mq('(max-width: 720px), (orientation: portrait) and (max-width: 1024px)'),
+      'reduce motion: ' + mq('(prefers-reduced-motion: reduce)'),
+      'hero shown: ' + (document.getElementById('hero') && getComputedStyle(document.getElementById('hero')).display !== 'none' ? 'YES' : 'no (static)'),
+      'stage: ' + (st ? st.className : '-'),
+      'canvas: ' + (c ? c.width + 'x' + c.height + ' opacity ' + getComputedStyle(c).opacity : 'none'),
+      'frames fetched: ' + imgs + '/121',
+      'video src: ' + (v && v.currentSrc ? 'yes' : 'none'),
+      'scrollY: ' + Math.round(scrollY),
+      'errors: ' + (errs.length ? errs.slice(-3).join(' | ') : 'none'),
+      navigator.userAgent.replace(/^Mozilla\/5\.0 /, '').slice(0, 120)
+    ].join('\n');
+  }, 500);
+})();
+</script>
 </head>
 <body>
 <a class="skip" href="#main">דלג לתוכן</a>
