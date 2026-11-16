@@ -132,7 +132,8 @@ main:focus{outline:none}
 }
 /* static hero (the two gates: short landscape phones, reduced motion) */
 .hero-static{display:none}
-@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+/* scroll-driven hero runs for reduced motion too: it moves only with the visitor's own scroll; text effects are pinned below */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px){
   .hero{display:none}
   .hero-static{display:flex;position:relative;min-height:100svh;align-items:flex-end;padding:120px 20px 56px;background:linear-gradient(180deg,#14161833 0%,#141618 88%),url('assets/hero-ending.jpg') center 35%/cover no-repeat}
   body .kg{display:none}
@@ -560,6 +561,7 @@ function updateCaptions(p, now){
     let op = (i === 0 ? 1 : smoothstep(p, a, a + f)) * (i === bands.length - 1 ? 1 : 1 - smoothstep(p, b - f, b));
     if (i === bands.length - 1 && p < a) op = 0;
     let k = clamp((p - a) / (B.ramp || Math.min(0.025, (b - a) * 0.35)), 0, 1);
+    if (reduceMQ.matches) k = 1; /* reduced motion: words arrive whole, bands only cross-fade */
     if (i === 0) k = Math.max(k, loadK);
     op = Math.round(op * 1000) / 1000;
     if (op !== B.op) { B.op = op; B.el.style.opacity = op; B.el.style.visibility = op > 0 ? 'visible' : 'hidden'; }
@@ -668,8 +670,7 @@ function failVideo(){
 
 /* the five gates, kept live */
 const GATES = [
-  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
-  '(prefers-reduced-motion: reduce)'
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)'
 ];
 let scrubOn = false;
 function enableScrub(){
@@ -677,7 +678,7 @@ function enableScrub(){
   initHeroOnce();
   addEventListener('scroll', onScroll, { passive: true });
   bands.forEach(b => { b.op = -1; b.k = -1; });
-  unpinFinalStates();
+  if (!reduceMQ.matches) unpinFinalStates();
   updateCaptions(heroProgress(), performance.now());
   onScroll();
 }
@@ -809,7 +810,7 @@ function unpinFinalStates(){
     delete box.dataset.pinned; liftDone = false; hp = 0; lastOn = -1; box.classList.remove('done'); holdtx.textContent = 'החזק כדי להעמיס'; renderLift();
   }
 }
-reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else applyHeroMode(); });
+reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else { applyHeroMode(); unpinFinalStates(); } });
 if (reduceMQ.matches) pinToFinalStates();
 
 /* form: opens an email to the business (static site, no backend) */

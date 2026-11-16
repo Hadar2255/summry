@@ -128,7 +128,8 @@ main:focus{outline:none}
 }
 /* static hero: short landscape phones and reduced motion */
 .hero-static{display:none}
-@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px), (prefers-reduced-motion: reduce){
+/* scroll-driven hero runs for reduced motion too: it moves only with the visitor's own scroll; text effects are pinned below */
+@media (orientation: landscape) and (pointer: coarse) and (max-height: 560px){
   .hero{display:none}
   .hero-static{display:flex;position:relative;min-height:100svh;align-items:flex-end;padding:120px 24px 64px;background:linear-gradient(180deg,#14103833 0%,#141038 86%),url('assets/hero-ending.jpg') center 40%/cover no-repeat}
   body .prog{display:none}
@@ -651,6 +652,7 @@ function updateCaptions(p){
     let op = (i === 0 ? 1 : smoothstep(p, a, a + f)) * (i === bands.length - 1 ? 1 : 1 - smoothstep(p, b - f, b));
     if (i === bands.length - 1 && p < a) op = 0;
     let k = clamp((p - a) / (B.ramp || Math.min(0.025, (b - a) * 0.35)), 0, 1);
+    if (reduceMQ.matches) k = 1; /* reduced motion: words arrive whole, bands only cross-fade */
     if (i === 0) k = Math.max(k, loadK);
     op = Math.round(op * 1000) / 1000;
     if (op !== B.op) { B.op = op; B.el.style.opacity = op; B.el.style.visibility = op > 0 ? 'visible' : 'hidden'; }
@@ -742,15 +744,14 @@ function failVideo(){ if (stage.classList.contains('video-failed')) return; stag
 
 /* static-hero gates, kept live (identical to the CSS) */
 const GATES = [
-  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
-  '(prefers-reduced-motion: reduce)'
+  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)'
 ];
 let scrubOn = false;
 function enableScrub(){
   if (scrubOn) return; scrubOn = true; initHeroOnce();
   addEventListener('scroll', onScroll, { passive: true });
   bands.forEach(b => { b.op = -1; b.k = -1; });
-  unpinFinalStates(); updateCaptions(heroProgress()); onScroll();
+  if (!reduceMQ.matches) unpinFinalStates(); updateCaptions(heroProgress()); onScroll();
 }
 function disableScrub(){ if (!scrubOn) return; scrubOn = false; removeEventListener('scroll', onScroll); if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; } }
 function applyHeroMode(){ if (GATES.some(q => matchMedia(q).matches)) disableScrub(); else enableScrub(); }
@@ -839,7 +840,7 @@ cP.addEventListener('input', calc); cB.addEventListener('input', calc); calc();
 let pinned = false;
 function pinToFinalStates(){ pinned = true; arcsPinned = true; arcs.forEach(l => l.style.setProperty('--draw', 1)); $$('.rv').forEach(el => el.classList.add('in', 'settled')); }
 function unpinFinalStates(){ if (!pinned) return; pinned = false; arcsPinned = false; lastDraw.clear(); drawArcs(); }
-reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else applyHeroMode(); });
+reduceMQ.addEventListener('change', e => { if (e.matches) pinToFinalStates(); else { applyHeroMode(); unpinFinalStates(); } });
 if (reduceMQ.matches) pinToFinalStates();
 
 applyHeroMode(); drawArcs(); updateProg(performance.now());
