@@ -56,7 +56,7 @@ main:focus{outline:none}
 .nav ul a:hover{color:var(--text-primary)}
 @media (max-width:860px){.nav ul{display:none}}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 22px;border-radius:10px;border:1px solid transparent;font:600 18px/1.2 var(--body);text-decoration:none;cursor:pointer;transition:background .35s var(--ease-out),transform .35s var(--ease-out),border-color .35s var(--ease-out),color .35s var(--ease-out)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;white-space:nowrap;padding:12px 22px;border-radius:10px;border:1px solid transparent;font:600 18px/1.2 var(--body);text-decoration:none;cursor:pointer;transition:background .35s var(--ease-out),transform .35s var(--ease-out),border-color .35s var(--ease-out),color .35s var(--ease-out)}
 .btn-accent{background:var(--accent);color:#141618}
 .btn-accent:hover{background:var(--accent-hover);transform:translateY(-2px)}
 .btn-ghost{border-color:var(--line-strong);color:var(--text-primary);background:#14161866}
@@ -66,9 +66,12 @@ main:focus{outline:none}
 /* HERO */
 .hero{position:relative;height:520vh}
 .stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--canvas)}
-.poster,.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background-size:cover;background-position:center}
+.poster,.stage video,.stage canvas.seq{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background-size:cover;background-position:center}
 .stage video{opacity:0;transition:opacity .9s var(--ease-out);will-change:transform;transform:translateZ(0)}
 .stage.video-ready video{opacity:1}
+.stage canvas.seq{opacity:0;transition:opacity .9s var(--ease-out)}
+.stage.video-ready canvas.seq{opacity:1}
+.stage.video-failed canvas.seq{display:none}
 .stage.video-failed video{display:none}
 .scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%),linear-gradient(#14161899,transparent 18%)}
 .band{position:absolute;opacity:0;text-shadow:var(--tshadow);max-width:min(560px,42vw);will-change:opacity}
@@ -113,15 +116,17 @@ main:focus{outline:none}
 
 /* phones and portrait tablets: the scrub runs in a wide window at the top, captions below it */
 @media (max-width: 720px), (orientation: portrait) and (max-width: 1024px){
-  .poster,.stage video,.scrim{top:64px;bottom:auto;height:50svh}
+  .poster,.stage video,.stage canvas.seq,.scrim{top:64px;bottom:auto;height:44vh;height:44svh}
   .scrim{background:linear-gradient(#14161866,transparent 20%,transparent 80%,#141618)}
-  .band.pos-r1,.band.pos-bl,.band.pos-top,.band.settle{inset:auto;top:calc(64px + 50svh + 14px);inset-inline:20px;bottom:auto;transform:none;max-width:none;margin:0;text-align:start}
+  .band.pos-r1,.band.pos-bl,.band.pos-top,.band.settle{inset:auto;top:calc(64px + 44vh + 18px);top:calc(64px + 44svh + 18px);inset-inline:20px;bottom:auto;transform:none;max-width:none;margin:0;text-align:start}
   .band::before{display:none}
-  .band .h-hero{font-size:clamp(40px,11vw,64px)!important}
-  .band .sub-hero{max-width:none;font-size:18px;margin-inline:0}
-  .settle .row{justify-content:flex-start}
+  .band .h-hero{font-size:clamp(36px,10vw,58px)!important;line-height:1.05}
+  .band .sub-hero{max-width:none;font-size:17px;line-height:1.5;margin:12px 0 0}
+  .settle .row{justify-content:flex-start;margin-top:18px}
+  .settle .btn-ghost{display:none}
+  .settle .btn-accent{width:100%}
   .settle .kicker{justify-content:flex-start}
-  .ring{top:calc(64px + 50svh - 60px);bottom:auto}
+  .ring{top:calc(64px + 44vh - 60px);top:calc(64px + 44svh - 60px);bottom:auto}
   .cue{bottom:18px}
   body .kg{display:none}
 }
@@ -489,10 +494,11 @@ $$('.band .split').forEach((el, bi) => {
 /* hero scrub */
 const hero = $('#hero'), stage = $('#stage'), video = $('#vid'), ring = $('#ring'), posterLayer = $('#poster'), cue = $('#cue');
 const bands = $$('.band').map(el => ({ el, a: +el.dataset.a, b: +el.dataset.b, ramp: el.dataset.ramp ? +el.dataset.ramp : 0, op: -1, k: -1 }));
-/* phones get a lighter encode: same frames, sized for a phone screen */
+/* phones draw an image sequence on a canvas: no codec, autoplay or Low Power Mode issues */
 const SMALL = matchMedia('(max-width: 720px), (orientation: portrait) and (max-width: 1024px)').matches;
-const VIDEO_URL = SMALL ? 'assets/hero-scrub-m.mp4' : 'assets/hero-scrub.mp4';
-const VIDEO_BYTES = SMALL ? 1637143 : 4536480; // real byte sizes
+const USE_SEQ = SMALL, SEQ_N = 121;
+const VIDEO_URL = 'assets/hero-scrub.mp4';
+const VIDEO_BYTES = 4536480;
 const POSTER = 'assets/hero-poster.jpg';
 let heroOnScreen = true;
 let target = 0, shown = 0, rafId = null, lastTick = 0;
@@ -538,7 +544,7 @@ function tick(now){
   if (loadK < 1) { loadK = clamp((now - loadStart) / 1400, 0, 1); loadK = 1 - Math.pow(1 - loadK, 3); }
   if (Math.abs(target - shown) < 0.0005 && loadK >= 1) { shown = target; rafId = null; lastTick = 0; }
   else rafId = requestAnimationFrame(tick);
-  if (video.duration) requestSeek(shown * video.duration);
+  if (USE_SEQ) drawSeq(shown); else if (video.duration) requestSeek(shown * video.duration);
   updateCaptions(shown, now);
 }
 function onScroll(){
@@ -556,7 +562,45 @@ function initHeroOnce(){
   img.onload = startBlobFetch; img.onerror = startBlobFetch; img.src = POSTER;
   setTimeout(startBlobFetch, 4000);
 }
-function startBlobFetch(){ if (started) return; started = true; loadHeroBlob().catch(failVideo); }
+function startBlobFetch(){ if (started) return; started = true; (USE_SEQ ? loadSeq() : loadHeroBlob()).catch(failVideo); }
+const seqImgs = []; let seqCanvas = null, seqCtx = null, seqLast = -1, seqLoaded = 0;
+function seqSize(){
+  if (!seqCanvas) return; const r = seqCanvas.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  const w = Math.round(r.width * d), h = Math.round(r.height * d);
+  if (w && h && (seqCanvas.width !== w || seqCanvas.height !== h)) { seqCanvas.width = w; seqCanvas.height = h; seqLast = -1; }
+}
+function drawSeq(p){
+  if (!seqCtx) return; const i = Math.round(clamp(p, 0, 1) * (SEQ_N - 1)); let j = -1;
+  for (let d = 0; d < SEQ_N && j < 0; d++) { if (seqImgs[i - d]) j = i - d; else if (seqImgs[i + d]) j = i + d; }
+  if (j < 0 || j === seqLast) return; seqLast = j;
+  const im = seqImgs[j], cw = seqCanvas.width, ch = seqCanvas.height, k = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+  const w = im.naturalWidth * k, h = im.naturalHeight * k; seqCtx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
+}
+function seqFrame(i){
+  return new Promise(res => {
+    const im = new Image(); im.decoding = 'async';
+    im.onload = () => (im.decode ? im.decode() : Promise.resolve()).catch(() => {}).then(() => {
+      seqImgs[i] = im; seqLoaded++; ring.style.setProperty('--ld', Math.round(126 * (1 - seqLoaded / SEQ_N)));
+      if (rafId === null) { seqLast = -1; drawSeq(shown); } res(true);
+    });
+    im.onerror = () => res(false);
+    im.src = `assets/seq/f${String(i + 1).padStart(3, '0')}.webp`;
+  });
+}
+async function loadSeq(){
+  seqCanvas = document.createElement('canvas'); seqCanvas.className = 'seq'; seqCanvas.setAttribute('aria-hidden', 'true');
+  video.after(seqCanvas); seqCtx = seqCanvas.getContext('2d'); seqSize();
+  addEventListener('resize', () => { seqSize(); drawSeq(shown); }, { passive: true });
+  const first = Math.round(heroProgress() * (SEQ_N - 1));
+  if (!(await seqFrame(first))) throw new Error('sequence');
+  shown = target = heroProgress(); seqLast = -1; drawSeq(shown); stage.classList.add('video-ready');
+  /* coarse to fine, so the whole scroll works early and sharpens as frames arrive */
+  const order = [], seen = new Set([first]);
+  for (const step of [30, 15, 8, 4, 2, 1]) for (let i = 0; i < SEQ_N; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); }
+  if (!seen.has(SEQ_N - 1)) order.unshift(SEQ_N - 1);
+  let next = 0; const worker = async () => { while (next < order.length) await seqFrame(order[next++]); };
+  await Promise.all(Array.from({ length: 6 }, worker));
+}
 async function loadHeroBlob(){
   const ctrl = new AbortController();
   let watchdog = setTimeout(() => ctrl.abort(), 20000);
